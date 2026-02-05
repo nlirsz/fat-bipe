@@ -1,0 +1,87 @@
+/* Global responsive tweaks for mobile: smaller fonts, reduced radii, and icon scaling. */
+:root{
+  --base-font: 15px; /* desktop baseline */
+  --mobile-font: 14px; /* small screens */
+  --radius-default: 8px; /* gentler corners */
+  --radius-small: 6px;
+  --icon-scale: 0.9;
+  --accent: #FFD55A;
+  --muted: #9CA3AF;
+  --card-bg: rgba(255,255,255,0.02);
+}
+
+html{font-size:var(--base-font);} 
+
+/* Reduce some common Tailwind rounding utilities by overriding after Tailwind CDN */
+.rounded, .rounded-sm, .rounded-md, .rounded-lg, .rounded-xl, .rounded-2xl {
+  border-radius: var(--radius-default) !important;
+}
+.rounded-full{ border-radius: 9999px !important; }
+
+/* Tighter button / card defaults */
+button, .btn, .card {
+  border-radius: var(--radius-small) !important;
+}
+
+/* Card utility for consistent modern look */
+.card {
+  background: var(--card-bg);
+  border-radius: var(--radius-default);
+  padding: 0.75rem;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+  border: 1px solid rgba(255,255,255,0.04);
+}
+
+/* Primary button look for premium feel */
+.btn-primary {
+  background: linear-gradient(180deg, var(--accent), #E6B800);
+  color: #000;
+  padding: 0.5rem 0.85rem;
+  border-radius: 10px;
+  font-weight: 800;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.35);
+}
+
+/* Scale down svg icons slightly to fit mobile */
+svg { 
+  width: auto; 
+  height: auto; 
+  max-height: 1.1em; 
+  max-width: 1.1em; 
+  transform-origin: center;
+}
+
+/* Smaller typographic scale on mobile */
+@media (max-width: 640px) {
+  html{ font-size: var(--mobile-font); }
+  /* Reduce paddings and gaps that may be too large on phones */
+  .px-6 { padding-left: 0.75rem !important; padding-right: 0.75rem !important }
+  .px-4 { padding-left: 0.5rem !important; padding-right: 0.5rem !important }
+  .py-4 { padding-top: 0.5rem !important; padding-bottom: 0.5rem !important }
+  .p-4 { padding: 0.5rem !important; }
+  .gap-6 { gap: 0.5rem !important }
+  .gap-4 { gap: 0.375rem !important }
+  .text-2xl { font-size: 1.15rem !important }
+  .text-xl { font-size: 1rem !important }
+  .text-lg { font-size: 0.95rem !important }
+  .text-base { font-size: 0.9rem !important }
+  .text-sm { font-size: 0.8rem !important }
+  .text-xs { font-size: 0.75rem !important }
+}
+
+/* Slightly smaller values for mid-size screens */
+@media (min-width: 641px) and (max-width: 1024px) {
+  html{ font-size: 15px }
+}
+
+/* Improve tappable targets and avoid overflow on PWA homescreen */
+a, button { touch-action: manipulation; }
+
+/* Ensure scroll areas keep custom scrollbar style */
+.scroll-area { overflow: auto; -webkit-overflow-scrolling: touch; }
+
+/* Helpful utility to force compact layout when used on container */
+.compact * { line-height: 1.05 !important; }
+
+/* small helper for compact cards and components */
+.compact .card, .compact .btn { padding: 0.5rem !important; border-radius: 6px !important }
