@@ -16,33 +16,11 @@ steps:
   # Build Docker image and push to Container Registry (compute a TAG fallback)
   - name: 'gcr.io/cloud-builders/docker'
     entrypoint: 'bash'
-    args:
-      - -lc
-      - |
-        if [ -z "$SHORT_SHA" ]; then
-          TAG=manual
-        else
-          TAG=$SHORT_SHA
-        fi
-        echo "Using TAG=$TAG"
-        docker build -t gcr.io/$PROJECT_ID/$_REPO:$TAG .
-        docker push gcr.io/$PROJECT_ID/$_REPO:$TAG
+    args: ['-lc', 'if [ -z "$SHORT_SHA" ]; then TAG=manual; else TAG=$SHORT_SHA; fi; echo "Using TAG=$$TAG"; docker build -t gcr.io/$PROJECT_ID/$_REPO:$$TAG .; docker push gcr.io/$PROJECT_ID/$_REPO:$$TAG']
 
   # Deploy to Cloud Run using the built image (use same TAG fallback)
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: 'bash'
-    args:
-      - -lc
-      - |
-        if [ -z "$SHORT_SHA" ]; then
-          TAG=manual
-        else
-          TAG=$SHORT_SHA
-        fi
-        gcloud --quiet run deploy ${_SERVICE} \
-          --image=gcr.io/$PROJECT_ID/$_REPO:$TAG \
-          --platform=managed \
-          --region=${_REGION} \
-          --allow-unauthenticated
+    args: ['-lc', 'if [ -z "$SHORT_SHA" ]; then TAG=manual; else TAG=$SHORT_SHA; fi; gcloud --quiet run deploy ${_SERVICE} --image=gcr.io/$PROJECT_ID/$_REPO:$$TAG --platform=managed --region=${_REGION} --allow-unauthenticated']
 
 timeout: '1200s'
