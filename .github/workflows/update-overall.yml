@@ -1,0 +1,55 @@
+name: Update Player Overall Daily
+
+on:
+  schedule:
+    # Roda diariamente às 02:00 UTC (11 PM BRT)
+    - cron: '0 2 * * *'
+  # Permite rodar manualmente via Actions tab
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  update-overall:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Create service account file
+        run: |
+          echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' > /tmp/serviceAccount.json
+          cat /tmp/serviceAccount.json  # Debug: verify file was created
+
+      - name: Update player overall in Firestore
+        run: |
+          node scripts/update-overall-firestore.cjs --service-account /tmp/serviceAccount.json
+        env:
+          NODE_ENV: production
+
+      - name: Cleanup
+        if: always()
+        run: |
+          rm -f /tmp/serviceAccount.json
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "❌ Overall update failed. Check logs above."
+          exit 1
+
+      - name: Notify on success
+        if: success()
+        run: |
+          echo "✅ Overall update completed successfully."
