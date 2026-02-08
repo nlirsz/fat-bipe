@@ -143,10 +143,32 @@ export const resizeAndConvertToBase64 = (file: File): Promise<string> => {
 
 // --- PLAYERS ---
 
+const mapRatingsToFutStats = (player: any): Player => {
+  // If futStats already exists, use it
+  if (player.futStats) {
+    return player as Player;
+  }
+  
+  // Otherwise, map individual rating fields to futStats
+  const futStats = {
+    sho: player.finRating || 50,  // FIN = Finalização (sho in futStats)
+    pas: player.visRating || 50,  // VIS = Visão (pas in futStats)
+    dri: player.decRating || 50,  // DEC = Decisão (dri in futStats)
+    def: player.defRating || 50,  // DEF = Defesa (def in futStats)
+    pac: player.vitRating || 50,  // VIT = Vitalidade (pac in futStats)
+    phy: player.expRating || 50   // EXP = Experiência (phy in futStats)
+  };
+  
+  return {
+    ...player,
+    futStats
+  } as Player;
+};
+
 export const subscribeToPlayers = (callback: (players: Player[]) => void) => {
   const q = query(collection(db, "players"), orderBy("name"));
   return onSnapshot(q, (snapshot) => {
-    const players = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Player));
+    const players = snapshot.docs.map(doc => mapRatingsToFutStats({ id: doc.id, ...doc.data() }));
     
     if (players.length === 0) {
         MOCK_PLAYERS_INIT.forEach(p => {

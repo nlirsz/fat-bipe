@@ -31,6 +31,13 @@ export interface Player {
   futStats?: FutStats;
   cardTheme?: 'GOLD' | 'SPECIAL' | 'TOTY' | 'ICON';
   externalId?: string;
+  // Individual rating fields (from update scripts)
+  finRating?: number;
+  visRating?: number;
+  decRating?: number;
+  defRating?: number;
+  vitRating?: number;
+  expRating?: number;
 }
 
 export interface MatchEvent {
