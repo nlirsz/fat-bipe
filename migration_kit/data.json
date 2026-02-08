@@ -1,0 +1,1627 @@
+{
+  "exportedAt": "2026-02-07T17:37:27.567Z",
+  "players": [
+    {
+      "id": "e51bbb10-a2ed-494e-a2c0-d45bd2433479",
+      "name": "Baú",
+      "matches_played": 1,
+      "wins": 1,
+      "goals": 1,
+      "assists": 2,
+      "position": "Atacante",
+      "created_at": "2026-01-07T15:28:18.474784+00:00",
+      "stats": {
+        "pace": 60,
+        "passing": 60,
+        "physical": 60,
+        "shooting": 60,
+        "decRating": 7,
+        "defRating": 12,
+        "defending": 60,
+        "dribbling": 60,
+        "expRating": 20,
+        "finRating": 4,
+        "visRating": 8,
+        "vitRating": 100
+      },
+      "avatar_url": "/monkey_avatar.png",
+      "overall": 64,
+      "history": [],
+      "base_overall": 82
+    },
+    {
+      "id": "e54b3c4a-218b-4616-91a2-c163dd757223",
+      "name": "Bolinho",
+      "matches_played": 2,
+      "wins": 2,
+      "goals": 0,
+      "assists": 2,
+      "position": "Atacante",
+      "created_at": "2026-01-07T15:28:18.474784+00:00",
+      "stats": {
+        "pace": 60,
+        "passing": 60,
+        "physical": 60,
+        "shooting": 60,
+        "decRating": 5,
+        "defRating": 12,
+        "defending": 60,
+        "dribbling": 60,
+        "expRating": 40,
+        "finRating": 0,
+        "visRating": 8,
+        "vitRating": 100
+      },
+      "avatar_url": "/monkey_avatar.png",
+      "overall": 60,
+      "history": [],
+      "base_overall": 79
+    },
+    {
+      "id": "436a59af-5080-475f-98c4-bc1b7ce41bc5",
+      "name": "Bruno Ortiz",
+      "matches_played": 2,
+      "wins": 2,
+      "goals": 0,
+      "assists": 0,
+      "position": "Goleiro",
+      "created_at": "2026-01-07T15:28:18.474784+00:00",
+      "stats": {
+        "pace": 60,
+        "passing": 60,
+        "physical": 60,
+        "shooting": 60,
+        "decRating": 0,
+        "defRating": 45,
+        "defending": 60,
+        "dribbling": 60,
+        "expRating": 40,
+        "finRating": 0,
+        "visRating": 0,
+        "vitRating": 100
+      },
+      "avatar_url": "/monkey_avatar.png",
+      "overall": 85,
+      "history": [],
+      "base_overall": 90
+    },
+    {
+      "id": "7e5da670-24b7-47e3-b43c-16e96eceaf14",
+      "name": "Canalle",
+      "matches_played": 4,
+      "wins": 2,
+      "goals": 5,
+      "assists": 4,
+      "position": "Defensor",
+      "created_at": "2026-01-07T15:28:18.474784+00:00",
+      "stats": {
+        "pace": 60,
+        "passing": 60,
+        "physical": 60,
+        "shooting": 60,
+        "decRating": 22,
+        "defRating": 62,
+        "defending": 60,
+        "dribbling": 60,
+        "expRating": 79,
+        "finRating": 20,
+        "visRating": 16,
+        "vitRating": 50
+      },
+      "avatar_url": "/monkey_avatar.png",
+      "overall": 80,
+      "history": [],
+      "base_overall": 82
+    },
+    {
+      "id": "b9406a8f-737c-4542-b8e3-8cc2e272ad97",
+      "name": "Careg",
+      "matches_played": 12,
+      "wins": 7,
+      "goals": 9,
+      "assists": 13,
+      "position": "Defensor",
+      "created_at": "2026-01-07T15:28:18.474784+00:00",
+      "stats": {
+        "pace": 60,
+        "passing": 60,
+        "physical": 60,
+        "shooting": 60,
+        "decRating": 22,
+        "defRating": 67,
+        "defending": 60,
+        "dribbling": 60,
+        "expRating": 99,
+        "finRating": 20,
+        "visRating": 16,
+        "vitRating": 60
+      },
+      "avatar_url": "/monkey_avatar.png",
+      "overall": 82,
+      "history": [],
+      "base_overall": 82
+    },
+    {
+      "id": "80e0c0bb-99a2-47a2-b6da-8301886c60e9",
+      "name": "Carlinhos",
+      "matches_played": 12,
+      "wins": 5,
+      "goals": 11,
+      "assists": 23,
+      "position": "Meia",
+      "created_at": "2026-01-07T15:28:18.474784+00:00",
+      "stats": {
+        "pace": 60,
+        "passing": 60,
+        "physical": 60,
+        "shooting": 60,
+        "decRating": 56,
+        "defRating": 25,
+        "defending": 60,
+        "dribbling": 60,
+        "expRating": 99,
+        "finRating": 35,
+        "visRating": 55,
+        "vitRating": 60
+      },
+      "avatar_url": "https://i.postimg.cc/zBbFLH3r/MACACO-DO-FLAMENGO.png",
+      "overall": 90,
+      "history": [],
+      "base_overall": 90
+    },
+    {
+      "id": "e9abf252-2f15-4f52-a451-5053ef32d376",
+      "name": "Cubo",
+      "matches_played": 10,
+      "wins": 5,
+      "goals": 0,
+      "assists": 3,
+      "position": "Goleiro",
+      "created_at": "2026-01-07T15:28:18.474784+00:00",
+      "stats": {
+        "pace": 60,
+        "passing": 60,
+        "physical": 60,
+        "shooting": 60,
+        "decRating": 0,
+        "defRating": 38,
+        "defending": 60,
+        "dribbling": 60,
+        "expRating": 79,
+        "finRating": 0,
+        "visRating": 0,
+        "vitRating": 25
+      },
+      "avatar_url": "https://i.postimg.cc/zDHxv6Rb/MACACO-DO-VASCO.png",
+      "overall": 83,
+      "history": [],
+      "base_overall": 85
+    },
+    {
+      "id": "70bd3dd4-9925-42ae-8574-076097bd69fb",
+      "name": "Didico",
+      "matches_played": 8,
+      "wins": 1,
+      "goals": 13,
+      "assists": 9,
+      "position": "Atacante",
+      "created_at": "2026-01-07T15:28:18.474784+00:00",
+      "stats": {
+        "pace": 60,
+        "passing": 60,
+        "physical": 60,
+        "shooting": 60,
+        "decRating": 40,
+        "defRating": 10,
+        "defending": 60,
+        "dribbling": 60,
+        "expRating": 79,
+        "finRating": 40,
+        "visRating": 24,
+        "vitRating": 25
+      },
+      "avatar_url": "/monkey_avatar.png",
+      "overall": 87,
+      "history": [],
+      "base_overall": 91
+    },
+    {
+      "id": "87f97ec1-399f-4661-9227-e2ad5d0839f2",
+      "name": "Doni",
+      "matches_played": 12,
+      "wins": 6,
+      "goals": 15,
+      "assists": 12,
+      "position": "Defensor",
+      "created_at": "2026-01-07T15:28:18.474784+00:00",
+      "stats": {
+        "pace": 60,
+        "passing": 60,
+        "physical": 60,
+        "shooting": 60,
+        "decRating": 23,
+        "defRating": 62,
+        "defending": 60,
+        "dribbling": 60,
+        "expRating": 99,
+        "finRating": 16,
+        "visRating": 20,
+        "vitRating": 40
+      },
+      "avatar_url": "/monkey_avatar.png",
+      "overall": 89,
+      "history": [],
+      "base_overall": 90
+    },
+    {
+      "id": "0a974173-00d0-4a1d-aac1-3818b68faf1b",
+      "name": "Fio",
+      "matches_played": 1,
+      "wins": 0,
+      "goals": 0,
+      "assists": 0,
+      "position": "Defensor",
+      "created_at": "2026-01-07T15:28:18.474784+00:00",
+      "stats": {
+        "pace": 60,
+        "passing": 60,
+        "physical": 60,
+        "shooting": 60,
+        "decRating": 0,
+        "defRating": 68,
+        "defending": 60,
+        "dribbling": 60,
+        "expRating": 20,
+        "finRating": 0,
+        "visRating": 0,
+        "vitRating": 0
+      },
+      "avatar_url": "/monkey_avatar.png",
+      "overall": 62,
+      "history": [],
+      "base_overall": 70
+    },
+    {
+      "id": "68bb8a56-3136-44c6-847d-820cab65985f",
+      "name": "Gabriel",
+      "matches_played": 2,
+      "wins": 1,
+      "goals": 1,
+      "assists": 1,
+      "position": "Meia",
+      "created_at": "2026-01-07T15:28:18.474784+00:00",
+      "stats": {
+        "pace": 60,
+        "passing": 60,
+        "physical": 60,
+        "shooting": 60,
+        "decRating": 0,
+        "defRating": 15,
+        "defending": 60,
+        "dribbling": 60,
+        "expRating": 20,
+        "finRating": 0,
+        "visRating": 0,
+        "vitRating": 0
+      },
+      "avatar_url": "/monkey_avatar.png",
+      "overall": 58,
+      "history": [],
+      "base_overall": 75
+    },
+    {
+      "id": "95b9afd7-923d-45f7-95f0-0a57d5c2c2be",
+      "name": "Goleiro Convidado",
+      "matches_played": 0,
+      "wins": 0,
+      "goals": 0,
+      "assists": 0,
+      "position": "Goleiro",
+      "created_at": "2026-02-01T23:21:16.499699+00:00",
+      "stats": {
+        "pace": 60,
+        "passing": 60,
+        "physical": 60,
+        "shooting": 60,
+        "defending": 60,
+        "dribbling": 60
+      },
+      "avatar_url": null,
+      "overall": 0,
+      "history": [],
+      "base_overall": 60
+    },
+    {
+      "id": "1b83ab62-35e2-4bff-9942-9529ee35ef8d",
+      "name": "Gugo",
+      "matches_played": 3,
+      "wins": 2,
+      "goals": 7,
+      "assists": 2,
+      "position": "Meia",
+      "created_at": "2026-01-07T15:28:18.474784+00:00",
+      "stats": {
+        "pace": 60,
+        "passing": 60,
+        "physical": 60,
+        "shooting": 60,
+        "decRating": 0,
+        "defRating": 24,
+        "defending": 60,
+        "dribbling": 60,
+        "expRating": 20,
+        "finRating": 0,
+        "visRating": 0,
+        "vitRating": 100
+      },
+      "avatar_url": "/monkey_avatar.png",
+      "overall": 71,
+      "history": [],
+      "base_overall": 82
+    },
+    {
+      "id": "de103322-15e2-40db-b843-a9acf21806b6",
+      "name": "JP",
+      "matches_played": 5,
+      "wins": 3,
+      "goals": 8,
+      "assists": 6,
+      "position": "Meia",
+      "created_at": "2026-01-07T15:28:18.474784+00:00",
+      "stats": {
+        "pace": 60,
+        "passing": 60,
+        "physical": 60,
+        "shooting": 60,
+        "decRating": 24,
+        "defRating": 26,
+        "defending": 60,
+        "dribbling": 60,
+        "expRating": 59,
+        "finRating": 23,
+        "visRating": 16,
+        "vitRating": 67
+      },
+      "avatar_url": "/monkey_avatar.png",
+      "overall": 77,
+      "history": [],
+      "base_overall": 84
+    },
+    {
+      "id": "89393098-3e8c-4b23-8858-a62d0a153152",
+      "name": "Kraiewski",
+      "matches_played": 1,
+      "wins": 1,
+      "goals": 0,
+      "assists": 0,
+      "position": "Defensor",
+      "created_at": "2026-01-26T01:07:52.369174+00:00",
+      "stats": {
+        "pace": 60,
+        "passing": 60,
+        "physical": 60,
+        "shooting": 60,
+        "defending": 60,
+        "dribbling": 60
+      },
+      "avatar_url": "https://i.postimg.cc/zBbFLH3r/MACACO-DO-FLAMENGO.png",
+      "overall": 73,
+      "history": [],
+      "base_overall": 75
+    },
+    {
+      "id": "c7ec273e-f893-4fd3-9966-3d3d1bab83e7",
+      "name": "Leandro",
+      "matches_played": 10,
+      "wins": 4,
+      "goals": 1,
+      "assists": 1,
+      "position": "Goleiro",
+      "created_at": "2026-01-07T15:28:18.474784+00:00",
+      "stats": {
+        "pace": 60,
+        "passing": 60,
+        "physical": 60,
+        "shooting": 60,
+        "decRating": 5,
+        "defRating": 38,
+        "defending": 60,
+        "dribbling": 60,
+        "expRating": 79,
+        "finRating": 4,
+        "visRating": 4,
+        "vitRating": 50
+      },
+      "avatar_url": "/monkey_avatar.png",
+      "overall": 85,
+      "history": [],
+      "base_overall": 87
+    },
+    {
+      "id": "a93dc2e8-b724-4a09-8fae-2c6c7b9637f8",
+      "name": "Mano Maylon",
+      "matches_played": 4,
+      "wins": 0,
+      "goals": 0,
+      "assists": 0,
+      "position": "Meia",
+      "created_at": "2026-01-26T22:20:36.2292+00:00",
+      "stats": {
+        "pace": 75,
+        "passing": 75,
+        "physical": 75,
+        "shooting": 75,
+        "defending": 75,
+        "dribbling": 75
+      },
+      "avatar_url": "https://i.postimg.cc/zDHxv6Rb/MACACO-DO-VASCO.png",
+      "overall": 51,
+      "history": [
+        {
+          "date": "2026-01-26",
+          "overall": 75
+        }
+      ],
+      "base_overall": 75
+    },
+    {
+      "id": "622729e0-5ca0-4f65-9838-baafb6ef228f",
+      "name": "Marcelinho",
+      "matches_played": 1,
+      "wins": 0,
+      "goals": 1,
+      "assists": 0,
+      "position": "Atacante",
+      "created_at": "2026-01-07T15:28:18.474784+00:00",
+      "stats": {
+        "pace": 60,
+        "passing": 60,
+        "physical": 60,
+        "shooting": 60,
+        "decRating": 3,
+        "defRating": 8,
+        "defending": 60,
+        "dribbling": 60,
+        "expRating": 20,
+        "finRating": 4,
+        "visRating": 0,
+        "vitRating": 0
+      },
+      "avatar_url": "/monkey_avatar.png",
+      "overall": 57,
+      "history": [],
+      "base_overall": 80
+    },
+    {
+      "id": "310cd339-3b6b-47bd-b25a-c8c70475d7c8",
+      "name": "Mat",
+      "matches_played": 12,
+      "wins": 7,
+      "goals": 25,
+      "assists": 10,
+      "position": "Defensor",
+      "created_at": "2026-01-07T15:28:18.474784+00:00",
+      "stats": {
+        "pace": 60,
+        "passing": 60,
+        "physical": 60,
+        "shooting": 60,
+        "decRating": 39,
+        "defRating": 22,
+        "defending": 60,
+        "dribbling": 60,
+        "expRating": 99,
+        "finRating": 44,
+        "visRating": 20,
+        "vitRating": 60
+      },
+      "avatar_url": "https://i.postimg.cc/zDHxv6Rb/MACACO-DO-VASCO.png",
+      "overall": 87,
+      "history": [],
+      "base_overall": 85
+    },
+    {
+      "id": "69c4eef2-b31d-464d-aa17-1a5fa960b3ff",
+      "name": "Nicolas",
+      "matches_played": 8,
+      "wins": 6,
+      "goals": 23,
+      "assists": 8,
+      "position": "Atacante",
+      "created_at": "2026-01-07T15:28:18.474784+00:00",
+      "stats": {
+        "pace": 60,
+        "passing": 60,
+        "physical": 60,
+        "shooting": 60,
+        "decRating": 27,
+        "defRating": 13,
+        "defending": 60,
+        "dribbling": 60,
+        "expRating": 40,
+        "finRating": 36,
+        "visRating": 8,
+        "vitRating": 100
+      },
+      "avatar_url": "/monkey_avatar.png",
+      "overall": 95,
+      "history": [],
+      "base_overall": 87
+    },
+    {
+      "id": "cd914dae-9a5c-4948-9ee2-c35aeb3b5908",
+      "name": "Nicolas Heinz",
+      "matches_played": 6,
+      "wins": 5,
+      "goals": 7,
+      "assists": 4,
+      "position": "Meia",
+      "created_at": "2026-01-12T00:22:15.265618+00:00",
+      "stats": {
+        "pace": 60,
+        "passing": 60,
+        "physical": 60,
+        "shooting": 60,
+        "defending": 60,
+        "dribbling": 60
+      },
+      "avatar_url": "https://i.postimg.cc/zBbFLH3r/MACACO-DO-FLAMENGO.png",
+      "overall": 82,
+      "history": [],
+      "base_overall": 87
+    },
+    {
+      "id": "61f77fe6-0212-49a5-bbe5-3b82f394bff4",
+      "name": "Ortiz",
+      "matches_played": 11,
+      "wins": 5,
+      "goals": 34,
+      "assists": 11,
+      "position": "Atacante",
+      "created_at": "2026-01-07T15:28:18.474784+00:00",
+      "stats": {
+        "pace": 60,
+        "passing": 60,
+        "physical": 60,
+        "shooting": 60,
+        "decRating": 44,
+        "defRating": 13,
+        "defending": 60,
+        "dribbling": 60,
+        "expRating": 99,
+        "finRating": 43,
+        "visRating": 28,
+        "vitRating": 80
+      },
+      "avatar_url": "/monkey_avatar.png",
+      "overall": 89,
+      "history": [],
+      "base_overall": 85
+    },
+    {
+      "id": "bedc96db-2511-40d5-b2b3-e35652b5f544",
+      "name": "Renan",
+      "matches_played": 7,
+      "wins": 2,
+      "goals": 9,
+      "assists": 4,
+      "position": "Atacante",
+      "created_at": "2026-01-07T15:28:18.474784+00:00",
+      "stats": {
+        "pace": 60,
+        "passing": 60,
+        "physical": 60,
+        "shooting": 60,
+        "decRating": 20,
+        "defRating": 12,
+        "defending": 60,
+        "dribbling": 60,
+        "expRating": 79,
+        "finRating": 24,
+        "visRating": 8,
+        "vitRating": 25
+      },
+      "avatar_url": "/monkey_avatar.png",
+      "overall": 65,
+      "history": [],
+      "base_overall": 78
+    },
+    {
+      "id": "dc762e9d-7a5e-480d-a74e-5d9860cab5ff",
+      "name": "Sorgatto",
+      "matches_played": 12,
+      "wins": 4,
+      "goals": 29,
+      "assists": 21,
+      "position": "Meia",
+      "created_at": "2026-01-07T15:28:18.474784+00:00",
+      "stats": {
+        "pace": 60,
+        "passing": 60,
+        "physical": 60,
+        "shooting": 60,
+        "decRating": 74,
+        "defRating": 25,
+        "defending": 60,
+        "dribbling": 60,
+        "expRating": 99,
+        "finRating": 75,
+        "visRating": 43,
+        "vitRating": 40
+      },
+      "avatar_url": "https://i.postimg.cc/zDHxv6Rb/MACACO-DO-VASCO.png",
+      "overall": 87,
+      "history": [],
+      "base_overall": 86
+    },
+    {
+      "id": "1fb7878c-07f8-4326-8498-8d180f76218a",
+      "name": "Valde",
+      "matches_played": 12,
+      "wins": 2,
+      "goals": 33,
+      "assists": 22,
+      "position": "Meia",
+      "created_at": "2026-01-07T15:28:18.474784+00:00",
+      "stats": {
+        "pace": 60,
+        "passing": 60,
+        "physical": 60,
+        "shooting": 60,
+        "decRating": 71,
+        "defRating": 24,
+        "defending": 60,
+        "dribbling": 60,
+        "expRating": 99,
+        "finRating": 59,
+        "visRating": 55,
+        "vitRating": 20
+      },
+      "avatar_url": "https://i.postimg.cc/zBbFLH3r/MACACO-DO-FLAMENGO.png",
+      "overall": 93,
+      "history": [],
+      "base_overall": 91
+    },
+    {
+      "id": "51ab20e4-88b0-4730-913d-78167e7e4a4b",
+      "name": "Vini Gtt",
+      "matches_played": 8,
+      "wins": 5,
+      "goals": 19,
+      "assists": 18,
+      "position": "Atacante",
+      "created_at": "2026-01-07T15:28:18.474784+00:00",
+      "stats": {
+        "pace": 60,
+        "passing": 60,
+        "physical": 60,
+        "shooting": 60,
+        "decRating": 10,
+        "defRating": 12,
+        "defending": 60,
+        "dribbling": 60,
+        "expRating": 40,
+        "finRating": 8,
+        "visRating": 8,
+        "vitRating": 50
+      },
+      "avatar_url": "/monkey_avatar.png",
+      "overall": 91,
+      "history": [],
+      "base_overall": 93
+    },
+    {
+      "id": "7e48157d-8ba3-4103-aa52-5ab1a8cee061",
+      "name": "Vini Japa",
+      "matches_played": 1,
+      "wins": 0,
+      "goals": 0,
+      "assists": 0,
+      "position": "Atacante",
+      "created_at": "2026-01-19T00:55:40.766699+00:00",
+      "stats": {
+        "pace": 60,
+        "passing": 60,
+        "physical": 60,
+        "shooting": 60,
+        "defending": 60,
+        "dribbling": 60
+      },
+      "avatar_url": "https://i.postimg.cc/zBbFLH3r/MACACO-DO-FLAMENGO.png",
+      "overall": 50,
+      "history": [],
+      "base_overall": 75
+    }
+  ],
+  "matches": [
+    {
+      "id": "6cc34af3-4bee-4a29-8cf9-f8ff0433d08e",
+      "date": "2025-12-07",
+      "winner": "RED",
+      "score_red": 13,
+      "score_white": 12,
+      "team_red": [
+        {
+          "name": "Mat",
+          "goals": 2,
+          "assists": 0,
+          "position": "Defensor"
+        },
+        {
+          "name": "Ortiz",
+          "goals": 4,
+          "assists": 0,
+          "position": "Atacante"
+        },
+        {
+          "name": "Carlinhos",
+          "goals": 2,
+          "assists": 2,
+          "position": "Meia"
+        },
+        {
+          "name": "Leandro",
+          "goals": 0,
+          "assists": 0,
+          "position": "Goleiro"
+        },
+        {
+          "name": "JP",
+          "goals": 1,
+          "assists": 2,
+          "position": "Meia"
+        },
+        {
+          "name": "Careg",
+          "goals": 1,
+          "assists": 2,
+          "position": "Defensor"
+        },
+        {
+          "name": "Vini Gtt",
+          "goals": 2,
+          "assists": 2,
+          "position": "Atacante"
+        }
+      ],
+      "team_white": [
+        {
+          "name": "Sorgatto",
+          "goals": 4,
+          "assists": 1,
+          "position": "Meia"
+        },
+        {
+          "name": "Valde",
+          "goals": 1,
+          "assists": 5,
+          "position": "Meia"
+        },
+        {
+          "name": "Doni",
+          "goals": 0,
+          "assists": 1,
+          "position": "Defensor"
+        },
+        {
+          "name": "Cubo",
+          "goals": 0,
+          "assists": 0,
+          "position": "Goleiro"
+        },
+        {
+          "name": "Didico",
+          "goals": 4,
+          "assists": 1,
+          "position": "Atacante"
+        },
+        {
+          "name": "Renan",
+          "goals": 1,
+          "assists": 1,
+          "position": "Atacante"
+        }
+      ],
+      "created_at": "2026-01-07T21:00:03.249194+00:00"
+    },
+    {
+      "id": "2020b727-8e87-447c-9cfb-3e82d3ca846f",
+      "date": "2025-12-21",
+      "winner": "RED",
+      "score_red": 18,
+      "score_white": 8,
+      "team_red": [
+        {
+          "name": "Sorgatto",
+          "goals": 4,
+          "assists": 3,
+          "position": "Meia"
+        },
+        {
+          "name": "JP",
+          "goals": 4,
+          "assists": 1,
+          "position": "Meia"
+        },
+        {
+          "name": "Cubo",
+          "goals": 0,
+          "assists": 0,
+          "position": "Goleiro"
+        },
+        {
+          "name": "Careg",
+          "goals": 1,
+          "assists": 1,
+          "position": "Defensor"
+        },
+        {
+          "name": "Ortiz",
+          "goals": 2,
+          "assists": 1,
+          "position": "Atacante"
+        },
+        {
+          "name": "Carlinhos",
+          "goals": 3,
+          "assists": 2,
+          "position": "Meia"
+        },
+        {
+          "name": "Valde",
+          "goals": 4,
+          "assists": 4,
+          "position": "Meia"
+        }
+      ],
+      "team_white": [
+        {
+          "name": "Mat",
+          "goals": 2,
+          "assists": 0,
+          "position": "Defensor"
+        },
+        {
+          "name": "Didico",
+          "goals": 2,
+          "assists": 3,
+          "position": "Atacante"
+        },
+        {
+          "name": "Gabriel",
+          "goals": 0,
+          "assists": 0,
+          "position": "Meia"
+        },
+        {
+          "name": "Doni",
+          "goals": 3,
+          "assists": 2,
+          "position": "Defensor"
+        },
+        {
+          "name": "Kraiewski",
+          "goals": 0,
+          "assists": 0,
+          "position": "Meia"
+        },
+        {
+          "name": "Marcelinho",
+          "goals": 1,
+          "assists": 0,
+          "position": "Atacante"
+        },
+        {
+          "name": "Canalle",
+          "goals": 0,
+          "assists": 0,
+          "position": "Defensor"
+        }
+      ],
+      "created_at": "2026-01-07T21:00:03.249194+00:00"
+    },
+    {
+      "id": "3ea89582-6e6e-4b09-9144-ba4d0a1d50ac",
+      "date": "2025-12-23",
+      "winner": "RED",
+      "score_red": 11,
+      "score_white": 11,
+      "team_red": [
+        {
+          "name": "Mat",
+          "goals": 2,
+          "assists": 2,
+          "position": "Defensor"
+        },
+        {
+          "name": "Doni",
+          "goals": 1,
+          "assists": 1,
+          "position": "Defensor"
+        },
+        {
+          "name": "Didico",
+          "goals": 4,
+          "assists": 2,
+          "position": "Atacante"
+        },
+        {
+          "name": "Canalle",
+          "goals": 3,
+          "assists": 2,
+          "position": "Defensor"
+        },
+        {
+          "name": "Baú",
+          "goals": 1,
+          "assists": 2,
+          "position": "Atacante"
+        },
+        {
+          "name": "Bolinho",
+          "goals": 0,
+          "assists": 1,
+          "position": "Atacante"
+        },
+        {
+          "name": "Renan",
+          "goals": 0,
+          "assists": 1,
+          "position": "Atacante"
+        },
+        {
+          "name": "Bruno Ortiz",
+          "goals": 0,
+          "assists": 0,
+          "position": "Goleiro"
+        }
+      ],
+      "team_white": [
+        {
+          "name": "Sorgatto",
+          "goals": 5,
+          "assists": 1,
+          "position": "Meia"
+        },
+        {
+          "name": "Ortiz",
+          "goals": 0,
+          "assists": 2,
+          "position": "Atacante"
+        },
+        {
+          "name": "Valde",
+          "goals": 4,
+          "assists": 1,
+          "position": "Meia"
+        },
+        {
+          "name": "Cubo",
+          "goals": 0,
+          "assists": 0,
+          "position": "Goleiro"
+        },
+        {
+          "name": "Leandro",
+          "goals": 1,
+          "assists": 0,
+          "position": "Goleiro"
+        },
+        {
+          "name": "Careg",
+          "goals": 1,
+          "assists": 0,
+          "position": "Defensor"
+        },
+        {
+          "name": "Carlinhos",
+          "goals": 0,
+          "assists": 4,
+          "position": "Meia"
+        },
+        {
+          "name": "Fio",
+          "goals": 0,
+          "assists": 0,
+          "position": "Defensor"
+        }
+      ],
+      "created_at": "2026-01-07T21:00:03.249194+00:00"
+    },
+    {
+      "id": "36bded71-8e82-42ca-b77f-fc44458172b3",
+      "date": "2025-12-27",
+      "winner": "WHITE",
+      "score_red": 12,
+      "score_white": 14,
+      "team_red": [
+        {
+          "name": "Mat",
+          "goals": 4,
+          "assists": 3,
+          "position": "Defensor"
+        },
+        {
+          "name": "Valde",
+          "goals": 4,
+          "assists": 3,
+          "position": "Meia"
+        },
+        {
+          "name": "Didico",
+          "goals": 0,
+          "assists": 0,
+          "position": "Atacante"
+        },
+        {
+          "name": "Canalle",
+          "goals": 2,
+          "assists": 2,
+          "position": "Defensor"
+        },
+        {
+          "name": "Careg",
+          "goals": 1,
+          "assists": 1,
+          "position": "Defensor"
+        },
+        {
+          "name": "Leandro",
+          "goals": 0,
+          "assists": 1,
+          "position": "Goleiro"
+        },
+        {
+          "name": "Renan",
+          "goals": 1,
+          "assists": 0,
+          "position": "Atacante"
+        },
+        {
+          "name": "Cubo",
+          "goals": 0,
+          "assists": 0,
+          "position": "Goleiro"
+        },
+        {
+          "name": "Carlinhos",
+          "goals": 2,
+          "assists": 1,
+          "position": "Meia"
+        }
+      ],
+      "team_white": [
+        {
+          "name": "Sorgatto",
+          "goals": 4,
+          "assists": 4,
+          "position": "Meia"
+        },
+        {
+          "name": "Doni",
+          "goals": 0,
+          "assists": 1,
+          "position": "Defensor"
+        },
+        {
+          "name": "Espejo",
+          "goals": 0,
+          "assists": 0,
+          "position": "Meia"
+        },
+        {
+          "name": "Ortiz",
+          "goals": 2,
+          "assists": 2,
+          "position": "Atacante"
+        },
+        {
+          "name": "Nicolas",
+          "goals": 6,
+          "assists": 1,
+          "position": "Atacante"
+        },
+        {
+          "name": "Gugo",
+          "goals": 0,
+          "assists": 0,
+          "position": "Meia"
+        },
+        {
+          "name": "Bolinho",
+          "goals": 0,
+          "assists": 1,
+          "position": "Atacante"
+        },
+        {
+          "name": "Bruno Ortiz",
+          "goals": 0,
+          "assists": 0,
+          "position": "Goleiro"
+        }
+      ],
+      "created_at": "2026-01-07T21:00:03.249194+00:00"
+    },
+    {
+      "id": "3a316807-654f-4efe-8385-28d03b9f5948",
+      "date": "2026-01-04",
+      "winner": "RED",
+      "score_red": 11,
+      "score_white": 9,
+      "team_red": [
+        {
+          "name": "Careg",
+          "goals": 1,
+          "assists": 0,
+          "position": "Defensor"
+        },
+        {
+          "name": "Carlinhos",
+          "goals": 2,
+          "assists": 5,
+          "position": "Meia"
+        },
+        {
+          "name": "Nicolas",
+          "goals": 3,
+          "assists": 1,
+          "position": "Atacante"
+        },
+        {
+          "name": "Ortiz",
+          "goals": 3,
+          "assists": 2,
+          "position": "Atacante"
+        },
+        {
+          "name": "Leandro",
+          "goals": 0,
+          "assists": 0,
+          "position": "Goleiro"
+        },
+        {
+          "name": "Mat",
+          "goals": 1,
+          "assists": 0,
+          "position": "Defensor"
+        },
+        {
+          "name": "Canalle",
+          "goals": 0,
+          "assists": 0,
+          "position": "Defensor"
+        }
+      ],
+      "team_white": [
+        {
+          "name": "Sorgatto",
+          "goals": 2,
+          "assists": 2,
+          "position": "Meia"
+        },
+        {
+          "name": "JP",
+          "goals": 1,
+          "assists": 1,
+          "position": "Meia"
+        },
+        {
+          "name": "Valde",
+          "goals": 2,
+          "assists": 1,
+          "position": "Meia"
+        },
+        {
+          "name": "Renan",
+          "goals": 4,
+          "assists": 0,
+          "position": "Atacante"
+        },
+        {
+          "name": "Kraiewski",
+          "goals": 0,
+          "assists": 0,
+          "position": "Meia"
+        },
+        {
+          "name": "Doni",
+          "goals": 0,
+          "assists": 0,
+          "position": "Defensor"
+        },
+        {
+          "name": "Bolota",
+          "goals": 0,
+          "assists": 0,
+          "position": "Meia"
+        },
+        {
+          "name": "Vini Gtt",
+          "goals": 0,
+          "assists": 0,
+          "position": "Atacante"
+        }
+      ],
+      "created_at": "2026-01-07T21:00:03.249194+00:00"
+    },
+    {
+      "id": "04363355-4a08-4455-9f8b-87a013c047cc",
+      "date": "2026-01-11",
+      "winner": "RED",
+      "score_red": 14,
+      "score_white": 10,
+      "team_red": [
+        {
+          "name": "Leandro",
+          "goals": 0,
+          "assists": 0,
+          "position": "Goleiro"
+        },
+        {
+          "name": "Valde",
+          "goals": 6,
+          "assists": 3,
+          "position": "Meia"
+        },
+        {
+          "name": "Sorgatto",
+          "goals": 3,
+          "assists": 4,
+          "position": "Meia"
+        },
+        {
+          "name": "Nicolas Heinz",
+          "goals": 3,
+          "assists": 1,
+          "position": "Meia"
+        },
+        {
+          "name": "JP",
+          "goals": 1,
+          "assists": 1,
+          "position": "Meia"
+        },
+        {
+          "name": "Renan",
+          "goals": 1,
+          "assists": 1,
+          "position": "Defensor"
+        },
+        {
+          "name": "Carlinhos",
+          "goals": 0,
+          "assists": 2,
+          "position": "Meia"
+        }
+      ],
+      "team_white": [
+        {
+          "name": "Cubo",
+          "goals": 0,
+          "assists": 0,
+          "position": "Goleiro"
+        },
+        {
+          "name": "Nicolas",
+          "goals": 6,
+          "assists": 1,
+          "position": "Atacante"
+        },
+        {
+          "name": "Vini Gtt",
+          "goals": 2,
+          "assists": 2,
+          "position": "Atacante"
+        },
+        {
+          "name": "Gugo",
+          "goals": 1,
+          "assists": 1,
+          "position": "Meia"
+        },
+        {
+          "name": "Mat",
+          "goals": 1,
+          "assists": 0,
+          "position": "Defensor"
+        },
+        {
+          "name": "Doni",
+          "goals": 0,
+          "assists": 3,
+          "position": "Defensor"
+        },
+        {
+          "name": "Careg",
+          "goals": 0,
+          "assists": 0,
+          "position": "Defensor"
+        }
+      ],
+      "created_at": "2026-01-12T00:22:15.541669+00:00"
+    },
+    {
+      "id": "9363f212-471f-4622-9a60-05ac8d562fbf",
+      "date": "2026-01-19",
+      "winner": "WHITE",
+      "score_red": 11,
+      "score_white": 11,
+      "team_red": [
+        {
+          "name": "Valde",
+          "goals": 5,
+          "assists": 1,
+          "position": "Meia"
+        },
+        {
+          "name": "Ortiz",
+          "goals": 3,
+          "assists": 1,
+          "position": "Atacante"
+        },
+        {
+          "name": "Sorgatto",
+          "goals": 2,
+          "assists": 1,
+          "position": "Meia"
+        },
+        {
+          "name": "JP",
+          "goals": 1,
+          "assists": 1,
+          "position": "Meia"
+        },
+        {
+          "name": "Carlinhos",
+          "goals": 0,
+          "assists": 4,
+          "position": "Meia"
+        },
+        {
+          "name": "Leandro",
+          "goals": 0,
+          "assists": 0,
+          "position": "Goleiro"
+        },
+        {
+          "name": "Renan",
+          "goals": 0,
+          "assists": 0,
+          "position": "Atacante"
+        },
+        {
+          "name": "Vini Japa",
+          "goals": 0,
+          "assists": 0,
+          "position": "Atacante"
+        }
+      ],
+      "team_white": [
+        {
+          "name": "Nicolas Heinz",
+          "goals": 4,
+          "assists": 0,
+          "position": "Meia"
+        },
+        {
+          "name": "Vini Gtt",
+          "goals": 3,
+          "assists": 2,
+          "position": "Atacante"
+        },
+        {
+          "name": "Nicolas",
+          "goals": 2,
+          "assists": 2,
+          "position": "Atacante"
+        },
+        {
+          "name": "Gabriel",
+          "goals": 1,
+          "assists": 1,
+          "position": "Meia"
+        },
+        {
+          "name": "Careg",
+          "goals": 1,
+          "assists": 0,
+          "position": "Defensor"
+        },
+        {
+          "name": "Mat",
+          "goals": 0,
+          "assists": 2,
+          "position": "Defensor"
+        },
+        {
+          "name": "Doni",
+          "goals": 0,
+          "assists": 2,
+          "position": "Defensor"
+        },
+        {
+          "name": "Cubo",
+          "goals": 0,
+          "assists": 0,
+          "position": "Goleiro"
+        }
+      ],
+      "created_at": "2026-01-19T00:47:53.388902+00:00"
+    },
+    {
+      "id": "c8d49e46-81c5-47cc-8a64-31d0bcab30a4",
+      "date": "2026-01-25",
+      "winner": "RED",
+      "score_red": 18,
+      "score_white": 13,
+      "team_red": [
+        {
+          "name": "Sorgatto",
+          "goals": 2,
+          "assists": 2,
+          "position": "Meia"
+        },
+        {
+          "name": "Carlinhos",
+          "goals": 2,
+          "assists": 3,
+          "position": "Meia"
+        },
+        {
+          "name": "Ortiz",
+          "goals": 8,
+          "assists": 0,
+          "position": "Atacante"
+        },
+        {
+          "name": "Gugo",
+          "goals": 6,
+          "assists": 1,
+          "position": "Meia"
+        },
+        {
+          "name": "Leandro",
+          "goals": 0,
+          "assists": 0,
+          "position": "Goleiro"
+        },
+        {
+          "name": "Kraiewski",
+          "goals": 0,
+          "assists": 0,
+          "position": "Defensor"
+        }
+      ],
+      "team_white": [
+        {
+          "name": "Mat",
+          "goals": 1,
+          "assists": 3,
+          "position": "Defensor"
+        },
+        {
+          "name": "Careg",
+          "goals": 0,
+          "assists": 0,
+          "position": "Defensor"
+        },
+        {
+          "name": "Valde",
+          "goals": 7,
+          "assists": 1,
+          "position": "Meia"
+        },
+        {
+          "name": "Doni",
+          "goals": 2,
+          "assists": 2,
+          "position": "Defensor"
+        },
+        {
+          "name": "Renan",
+          "goals": 2,
+          "assists": 1,
+          "position": "Atacante"
+        }
+      ],
+      "created_at": "2026-01-26T01:07:52.522955+00:00"
+    },
+    {
+      "id": "a8f9cad2-4dfe-4f9d-98d9-047a0bc5aada",
+      "date": "2026-02-01",
+      "winner": "WHITE",
+      "score_red": 6,
+      "score_white": 15,
+      "team_red": [
+        {
+          "name": "Ortiz",
+          "goals": 4,
+          "assists": 1,
+          "position": "Atacante"
+        },
+        {
+          "name": "Didico",
+          "goals": 1,
+          "assists": 3,
+          "position": "Atacante"
+        },
+        {
+          "name": "Sorgatto",
+          "goals": 1,
+          "assists": 1,
+          "position": "Meia"
+        },
+        {
+          "name": "Valde",
+          "goals": 0,
+          "assists": 1,
+          "position": "Meia"
+        },
+        {
+          "name": "Carlinhos",
+          "goals": 0,
+          "assists": 0,
+          "position": "Meia"
+        },
+        {
+          "name": "Mano Maylon",
+          "goals": 0,
+          "assists": 0,
+          "position": "Meia"
+        },
+        {
+          "name": "Leandro",
+          "goals": 0,
+          "assists": 0,
+          "conceded": 12,
+          "position": "Goleiro"
+        }
+      ],
+      "team_white": [
+        {
+          "name": "Vini Gtt",
+          "goals": 4,
+          "assists": 4,
+          "position": "Atacante"
+        },
+        {
+          "name": "Nicolas",
+          "goals": 2,
+          "assists": 1,
+          "position": "Atacante"
+        },
+        {
+          "name": "Nicolas Heinz",
+          "goals": 1,
+          "assists": 4,
+          "position": "Meia"
+        },
+        {
+          "name": "Doni",
+          "goals": 3,
+          "assists": 0,
+          "position": "Defensor"
+        },
+        {
+          "name": "Careg",
+          "goals": 1,
+          "assists": 3,
+          "position": "Defensor"
+        },
+        {
+          "name": "Mat",
+          "goals": 4,
+          "assists": 0,
+          "position": "Defensor"
+        },
+        {
+          "name": "Cubo",
+          "goals": 0,
+          "assists": 1,
+          "position": "Goleiro"
+        }
+      ],
+      "created_at": "2026-02-01T23:29:12.774016+00:00"
+    }
+  ]
+}
