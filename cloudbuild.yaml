@@ -34,6 +34,8 @@ steps:
   # Deploy to Cloud Run using the built image (use same TAG fallback)
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: 'bash'
+    env:
+      - 'PROJECT_ID=$PROJECT_ID'
     # Call the repository script which sanitizes/ignores extra args appended by the runner
     args: ['-lc', 'bash ./scripts/deploy-cloudrun.sh']
 
