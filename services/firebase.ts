@@ -144,20 +144,20 @@ export const resizeAndConvertToBase64 = (file: File): Promise<string> => {
 // --- PLAYERS ---
 
 const mapRatingsToFutStats = (player: any): Player => {
-  // If futStats already exists with actual values, use it
+  // Se já tem futStats com valores reais, usa
   if (player.futStats && Object.values(player.futStats).some((v: any) => v > 0 && v !== undefined)) {
     return player as Player;
   }
   
-  // Otherwise, try to map individual rating fields
+  // Se tem os fields de rating individual, mapeia para futStats
   if (player.finRating !== undefined || player.visRating !== undefined || player.decRating !== undefined) {
     const futStats = {
-      sho: player.finRating || 50,  // FIN = Finalização (sho in futStats)
-      pas: player.visRating || 50,  // VIS = Visão (pas in futStats)
-      dri: player.decRating || 50,  // DEC = Decisão (dri in futStats)
-      def: player.defRating || 50,  // DEF = Defesa (def in futStats)
-      pac: player.vitRating || 50,  // VIT = Vitalidade (pac in futStats)
-      phy: player.expRating || 50   // EXP = Experiência (phy in futStats)
+      sho: player.finRating || 50,
+      pas: player.visRating || 50,
+      dri: player.decRating || 50,
+      def: player.defRating || 50,
+      pac: player.vitRating || 50,
+      phy: player.expRating || 50
     };
     return {
       ...player,
@@ -165,10 +165,9 @@ const mapRatingsToFutStats = (player: any): Player => {
     } as Player;
   }
   
-  // Fallback: Generate sensible defaults based on overall rating
-  // This ensures manually added players have visible stats
+  // Fallback: valores padrão baseado no overall
   const rating = player.rating || 75;
-  const baselineVariance = Math.round(rating - 75); // How much above/below 75 is the player?
+  const baselineVariance = Math.round(rating - 75);
   const futStats = {
     sho: Math.max(50, Math.min(99, 70 + baselineVariance)),
     pas: Math.max(50, Math.min(99, 72 + baselineVariance)),

@@ -23,6 +23,7 @@ import {
   deleteMatchFromDb,
   resetAllData
 } from './services/firebase';
+import { updateAllPlayersCalculatedStats } from './services/playerCalculations';
 
 interface SettingsViewProps {
   currentThemeId: ThemeId;
@@ -30,12 +31,13 @@ interface SettingsViewProps {
   onLogoUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onResetAll: () => void;
   onSyncOverall: () => void;
+  onRecalculateStats: () => void;
   themeConfig: ThemeConfig;
   isResetting: boolean;
   isSyncing: boolean;
 }
 
-const SettingsView: React.FC<SettingsViewProps> = ({ currentThemeId, onThemeChange, onLogoUpload, onResetAll, onSyncOverall, themeConfig, isResetting, isSyncing }) => {
+const SettingsView: React.FC<SettingsViewProps> = ({ currentThemeId, onThemeChange, onLogoUpload, onResetAll, onSyncOverall, onRecalculateStats, themeConfig, isResetting, isSyncing }) => {
   const isDark = themeConfig.id === 'DARK';
   const borderColor = isDark ? 'border-zinc-800' : 'border-slate-200';
 
@@ -60,6 +62,28 @@ const SettingsView: React.FC<SettingsViewProps> = ({ currentThemeId, onThemeChan
                    >
                      {isSyncing ? <Loader2 size={14} className="animate-spin" /> : <RefreshCcw size={14} />}
                      {isSyncing ? "..." : "Sync"}
+                   </button>
+               </div>
+           </div>
+        </section>
+
+        <section>
+            <h2 className={`text-xl font-black mb-6 ${themeConfig.textMain} flex items-center gap-2 font-display uppercase tracking-tighter`}>
+             <RefreshCcw size={20} /> Estatísticas
+           </h2>
+           <div className={`${themeConfig.cardBg} p-4 rounded-lg border ${borderColor} shadow-md relative overflow-hidden card`}>
+               <div className="flex flex-col md:flex-row items-center gap-4">
+                   <div className="flex-1">
+                       <h3 className={`font-black text-sm ${themeConfig.textMain} uppercase tracking-tight`}>Recalcular Atributos</h3>
+                       <p className={`text-xs ${themeConfig.textMuted} font-medium mt-1`}>Atualiza FIN, VIS, DEC, DEF, VIT, EXP baseado nos matches.</p>
+                   </div>
+                   <button 
+                    onClick={onRecalculateStats}
+                    disabled={isSyncing}
+                    className={`${themeConfig.primaryBg} ${isDark ? 'text-black' : 'text-white'} px-6 h-12 rounded-xl font-black uppercase tracking-widest text-[10px] flex items-center gap-2 hover:brightness-110 transition-all active:scale-95 disabled:opacity-50`}
+                   >
+                     {isSyncing ? <Loader2 size={14} className="animate-spin" /> : <RefreshCcw size={14} />}
+                     {isSyncing ? "..." : "Recalcular"}
                    </button>
                </div>
            </div>
@@ -225,6 +249,12 @@ const App: React.FC = () => {
   const finishMatch = async () => {
     if (currentMatch) {
       await finishMatchInDb(currentMatch);
+      // Recalculate all player stats based on the match that just finished
+      try {
+        await updateAllPlayersCalculatedStats(players, matches, updatePlayerInDb);
+      } catch (error) {
+        console.error('Error recalculating player stats:', error);
+      }
       setView('HISTORY');
     }
   };
@@ -317,6 +347,19 @@ const App: React.FC = () => {
     }
   };
 
+  const handleRecalculateStats = async () => {
+    setIsSyncing(true);
+    try {
+      await updateAllPlayersCalculatedStats(players, matches, updatePlayerInDb);
+      alert("Estatísticas recalculadas com sucesso!");
+    } catch (error) {
+      console.error("Erro ao recalcular estatísticas:", error);
+      alert("Houve um erro ao recalcular as estatísticas.");
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
   const NavItem = ({ v, icon: Icon, label }: { v: ViewState, icon: any, label: string }) => {
     const isActive = view === v;
     return (
@@ -401,7 +444,7 @@ const App: React.FC = () => {
             )}
             {view === 'STATS' && <StatsBoard players={players} matches={matches} themeConfig={theme} />}
             {view === 'HISTORY' && <MatchHistory matches={matches} players={players} onUpdateMatch={updateHistoryMatch} themeConfig={theme} />}
-            {view === 'SETTINGS' && <SettingsView currentThemeId={currentThemeId} onThemeChange={setCurrentThemeId} onLogoUpload={handleLogoUpload} onResetAll={handleResetAll} onSyncOverall={handleSyncOverall} themeConfig={theme} isResetting={isResetting} isSyncing={isSyncing} />}
+            {view === 'SETTINGS' && <SettingsView currentThemeId={currentThemeId} onThemeChange={setCurrentThemeId} onLogoUpload={handleLogoUpload} onResetAll={handleResetAll} onSyncOverall={handleSyncOverall} onRecalculateStats={handleRecalculateStats} themeConfig={theme} isResetting={isResetting} isSyncing={isSyncing} />}
         </div>
 
         {/* MOBILE BOTTOM NAV - Fixed Absolute with High Z-Index */}
