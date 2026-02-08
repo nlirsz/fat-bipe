@@ -3,6 +3,19 @@ substitutions:
   _REGION: "us-west1"
   _REPO: "fat-bipe"
 
+# When a custom service account is used by the trigger, Cloud Build requires
+# an explicit logs behavior or a logs bucket. Setting logging to
+# CLOUD_LOGGING_ONLY ensures builds use Cloud Logging and avoids the
+# 'build.logs_bucket' validation error.
+options:
+  logging: CLOUD_LOGGING_ONLY
+  # When a custom service account is used by the trigger, Cloud Build
+  # may require an explicit logs-bucket behavior. Setting
+  # `default_logs_bucket_behavior: REGIONAL_USER_OWNED_BUCKET` is a
+  # compatible option that avoids the validation error when a
+  # `build.service_account` is present on the trigger.
+  default_logs_bucket_behavior: REGIONAL_USER_OWNED_BUCKET
+
 steps:
   # Install deps and build
   - name: 'node:18'
@@ -21,6 +34,7 @@ steps:
   # Deploy to Cloud Run using the built image (use same TAG fallback)
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: 'bash'
-    args: ['-lc', 'if [ -z "$SHORT_SHA" ]; then TAG=manual; else TAG=$SHORT_SHA; fi; gcloud --quiet run deploy ${_SERVICE} --image=gcr.io/$PROJECT_ID/$_REPO:$$TAG --platform=managed --region=${_REGION} --allow-unauthenticated']
+    # Call the repository script which sanitizes/ignores extra args appended by the runner
+    args: ['-lc', 'bash ./scripts/deploy-cloudrun.sh']
 
 timeout: '1200s'
