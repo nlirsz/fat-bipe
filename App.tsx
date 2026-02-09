@@ -299,49 +299,28 @@ const App: React.FC = () => {
   const handleSyncOverall = async () => {
     setIsSyncing(true);
     try {
-      const response = await fetch('https://overall-dos-guri.vercel.app/api/players');
-      const data = await response.json();
-      if (Array.isArray(data)) {
-        let matchedCount = 0;
-        for (const localPlayer of players) {
-          const localNameNorm = normalizeName(localPlayer.name);
-          const matched = data.find((p: any) => {
-            const apiNameNorm = normalizeName(p.name || '');
-            return apiNameNorm === localNameNorm || apiNameNorm.includes(localNameNorm) || localNameNorm.includes(apiNameNorm);
+      // Passo 1: Garantir que todos os jogadores têm baseOverall
+      const playersWithBaseOverall = players.map(player => ({
+        ...player,
+        baseOverall: player.baseOverall || player.rating || 75
+      }));
+      
+      // Atualizar os jogadores que não têm baseOverall
+      for (const player of playersWithBaseOverall) {
+        if (!player.baseOverall || player.baseOverall === undefined) {
+          await updatePlayerInDb(player.id, {
+            baseOverall: player.rating || 75
           });
-          if (matched) {
-            matchedCount++;
-            let apiPosition = localPlayer.position;
-            const apiPosStr = (matched.position || '').toUpperCase();
-            if (apiPosStr.includes('GOL') || apiPosStr === 'GL' || apiPosStr === 'GK') apiPosition = Position.GK;
-            else if (apiPosStr.includes('ZAG') || apiPosStr === 'DEF' || apiPosStr === 'CB' || apiPosStr === 'Z') apiPosition = Position.DEF;
-            else if (apiPosStr.includes('MEI') || apiPosStr === 'MID' || apiPosStr === 'CM' || apiPosStr.includes('ME')) apiPosition = Position.MID;
-            else if (apiPosStr.includes('ATA') || apiPosStr === 'FWD' || apiPosStr === 'ST' || apiPosStr === 'A') apiPosition = Position.FWD;
-
-            const getVal = (shortKey: string, longKey: string) => Number(matched[shortKey]) || Number(matched[longKey]) || 0;
-
-            await updatePlayerInDb(localPlayer.id, {
-              rating: Number(matched.overall) || Number(matched.rating) || localPlayer.rating,
-              position: apiPosition,
-              avatarUrl: matched.imageUrl || matched.avatarUrl || localPlayer.avatarUrl,
-              futStats: {
-                pac: getVal('pac', 'pace'),
-                sho: getVal('sho', 'shooting'),
-                pas: getVal('pas', 'passing'),
-                dri: getVal('dri', 'dribbling'),
-                def: getVal('def', 'defending'),
-                phy: getVal('phy', 'physical')
-              }
-            });
-          }
         }
-        alert(`Sincronização concluída! ${matchedCount} atletas atualizados com sucesso.`);
-      } else {
-          alert("Resposta da API inválida.");
       }
-    } catch (e) {
-      console.error("Erro na sincronização:", e);
-      alert("Houve um erro ao buscar dados da API.");
+      
+      // Passo 2: Recalcular todas as estatísticas
+      await updateAllPlayersCalculatedStats(playersWithBaseOverall, matches, updatePlayerInDb);
+      
+      alert("✅ Sincronização concluída! Todos os jogadores foram atualizados.");
+    } catch (error) {
+      console.error("Erro na sincronização:", error);
+      alert("❌ Houve um erro ao sincronizar. Tente novamente.");
     } finally {
       setIsSyncing(false);
     }
