@@ -144,20 +144,15 @@ export const resizeAndConvertToBase64 = (file: File): Promise<string> => {
 // --- PLAYERS ---
 
 const mapRatingsToFutStats = (player: any): Player => {
-  // Se já tem futStats com valores reais, usa
-  if (player.futStats && Object.values(player.futStats).some((v: any) => v > 0 && v !== undefined)) {
-    return player as Player;
-  }
-  
-  // Se tem os fields de rating individual, mapeia para futStats
-  if (player.finRating !== undefined || player.visRating !== undefined || player.decRating !== undefined) {
+  // Prioridade 1: Se tem os fields de rating individual, mapeia para futStats (MIGRATION_KIT CALCULATED)
+  if (player.finRating !== undefined || player.visRating !== undefined || player.decRating !== undefined || player.defRating !== undefined || player.vitRating !== undefined || player.expRating !== undefined) {
     const futStats = {
-      sho: player.finRating || 50,
-      pas: player.visRating || 50,
-      dri: player.decRating || 50,
-      def: player.defRating || 50,
-      pac: player.vitRating || 50,
-      phy: player.expRating || 50
+      sho: player.finRating ?? 50,
+      pas: player.visRating ?? 50,
+      dri: player.decRating ?? 50,
+      def: player.defRating ?? 50,
+      pac: player.vitRating ?? 50,
+      phy: player.expRating ?? 50
     };
     return {
       ...player,
@@ -165,8 +160,13 @@ const mapRatingsToFutStats = (player: any): Player => {
     } as Player;
   }
   
+  // Prioridade 2: Se já tem futStats preenchido (backward compatibility)
+  if (player.futStats && Object.keys(player.futStats).length > 0) {
+    return player as Player;
+  }
+  
   // Fallback: valores padrão baseado no overall
-  const rating = player.rating || 75;
+  const rating = player.rating || player.baseOverall || 75;
   const baselineVariance = Math.round(rating - 75);
   const futStats = {
     sho: Math.max(50, Math.min(99, 70 + baselineVariance)),

@@ -17,9 +17,10 @@ export const calculatePlayerStats = (
 
   if (playerMatches.length === 0) {
     // Sem matches: retorna overall base e stats padrão
+    const baseValue = player.baseOverall || player.rating || 75;
     const defaultStats = { pac: 50, sho: 50, pas: 50, dri: 50, def: 50, phy: 50 };
     return {
-      overall: player.rating || 75,
+      overall: baseValue,
       futStats: defaultStats,
       finRating: 50,
       visRating: 50,
@@ -172,7 +173,7 @@ export const calculatePlayerStats = (
   }
 
   // Overall = base + performance boost
-  const baseValue = player.rating || 75;
+  const baseValue = player.baseOverall || player.rating || 75;
   const calculated = Math.round(baseValue + (avgPerformance / 2) - 25);
   const overall = Math.max(1, Math.min(99, calculated));
 
@@ -209,15 +210,36 @@ export const updatePlayerCalculatedStats = async (
 ): Promise<void> => {
   const stats = calculatePlayerStats(player, allMatches, allPlayers);
   
-  await updatePlayerInDb(player.id, {
+  // Preparar entrada de history
+  const historyEntry = {
+    date: new Date().toISOString(),
     overall: stats.overall,
-    futStats: stats.futStats,
     finRating: stats.finRating,
     visRating: stats.visRating,
     decRating: stats.decRating,
     defRating: stats.defRating,
     vitRating: stats.vitRating,
     expRating: stats.expRating
+  };
+  
+  // Manter apenas últimos 100 entries de history
+  const currentHistory = player.history || [];
+  const newHistory = [...currentHistory, historyEntry].slice(-100);
+  
+  // Garantir que baseOverall está definido
+  const baseOverall = player.baseOverall || player.rating || 75;
+
+  await updatePlayerInDb(player.id, {
+    rating: stats.overall,
+    baseOverall: baseOverall,
+    futStats: stats.futStats,
+    finRating: stats.finRating,
+    visRating: stats.visRating,
+    decRating: stats.decRating,
+    defRating: stats.defRating,
+    vitRating: stats.vitRating,
+    expRating: stats.expRating,
+    history: newHistory
   });
 };
 

@@ -299,25 +299,10 @@ const App: React.FC = () => {
   const handleSyncOverall = async () => {
     setIsSyncing(true);
     try {
-      // Passo 1: Garantir que todos os jogadores têm baseOverall
-      const playersWithBaseOverall = players.map(player => ({
-        ...player,
-        baseOverall: player.baseOverall || player.rating || 75
-      }));
-      
-      // Atualizar os jogadores que não têm baseOverall
-      for (const player of playersWithBaseOverall) {
-        if (!player.baseOverall || player.baseOverall === undefined) {
-          await updatePlayerInDb(player.id, {
-            baseOverall: player.rating || 75
-          });
-        }
-      }
-      
-      // Passo 2: Recalcular todas as estatísticas
-      await updateAllPlayersCalculatedStats(playersWithBaseOverall, matches, updatePlayerInDb);
-      
-      alert("✅ Sincronização concluída! Todos os jogadores foram atualizados.");
+      // Recalcular todas as estatísticas usando a lógica do migration_kit
+      console.log(`Sincronizando ${players.length} jogadores...`);
+      await updateAllPlayersCalculatedStats(players, matches, updatePlayerInDb);
+      alert("✅ Sincronização concluída! Todos os jogadores foram atualizados com a lógica de cálculo do migration_kit.");
     } catch (error) {
       console.error("Erro na sincronização:", error);
       alert("❌ Houve um erro ao sincronizar. Tente novamente.");
