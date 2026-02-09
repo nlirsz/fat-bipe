@@ -1,8 +1,8 @@
-import { Player, Match, FutStats } from '../types';
+import { Player, Match, FutStats, Position } from '../types';
 
 /**
- * Calcula os atributos detalhados (FIN, VIS, DEC, VIT, EXP, DEF) e O OVERALL
- * baseado nos matches que o jogador participou
+ * Calcula os atributos detalhados (FIN, VIS, DEC, DEF, VIT, EXP, Overall) baseado nos matches
+ * Segue EXATAMENTE a estratégia do migration_kit/calculations.ts
  */
 export const calculatePlayerStats = (
   player: Player,
@@ -10,9 +10,9 @@ export const calculatePlayerStats = (
   allPlayers: Player[]
 ): { overall: number; futStats: FutStats; finRating: number; visRating: number; decRating: number; defRating: number; vitRating: number; expRating: number } => {
   
-  // Matches onde o jogador participou
+  // Matches onde o jogador participou (apenas FINISHED)
   const playerMatches = allMatches.filter(m => 
-    m.teamA.includes(player.id) || m.teamB.includes(player.id)
+    m.status === 'FINISHED' && (m.teamA.includes(player.id) || m.teamB.includes(player.id))
   );
 
   if (playerMatches.length === 0) {
@@ -30,85 +30,142 @@ export const calculatePlayerStats = (
     };
   }
 
-  // Coleta estatísticas dos matches
-  let totalGoals = 0;
-  let totalAssists = 0;
-  let totalWins = 0;
-  let totalConceded = 0;
+  // Coleta estatísticas dos matches com ponderação de dificuldade
+  let weightedGoals = 0;
+  let weightedAssists = 0;
+  let weightedConceded = 0;
+  let subsetWins = 0;
 
+  // Helper: calcula Overall médio de um time
+  const getTeamAvgOverall = (teamIds: string[]): number => {
+    if (!teamIds.length) return 75;
+    const totalOvr = teamIds.reduce((sum, memberId) => {
+      const memberP = allPlayers.find(p => p.id === memberId);
+      return sum + (memberP?.rating || 75);
+    }, 0);
+    return totalOvr / teamIds.length;
+  };
+
+  // Calcula ponderação por dificuldade (força do time adversário)
   playerMatches.forEach(match => {
     const isTeamA = match.teamA.includes(player.id);
-    const playerTeam = isTeamA ? match.teamA : match.teamB;
-    const oppTeam = isTeamA ? match.teamB : match.teamA;
+    const myTeamIds = isTeamA ? match.teamA : match.teamB;
+    const oppTeamIds = isTeamA ? match.teamB : match.teamA;
     const playerScore = isTeamA ? match.scoreA : match.scoreB;
     const oppScore = isTeamA ? match.scoreB : match.scoreA;
 
     // Contar gols e assistências do jogador
+    let goalsInMatch = 0;
+    let assistsInMatch = 0;
     match.events.forEach(event => {
       if (event.playerId === player.id) {
-        if (event.type === 'GOAL') totalGoals++;
-        if (event.type === 'ASSIST') totalAssists++;
+        if (event.type === 'GOAL') goalsInMatch++;
+        if (event.type === 'ASSIST') assistsInMatch++;
       }
     });
 
     // Contar vitórias
-    if (playerScore > oppScore) totalWins++;
+    if (playerScore > oppScore) subsetWins++;
 
-    // Contar gols sofridos
-    totalConceded += oppScore;
+    // Calcular ratio de dificuldade (time adversário forte = ratio > 1)
+    const myTeamOvr = getTeamAvgOverall(myTeamIds);
+    const oppTeamOvr = getTeamAvgOverall(oppTeamIds);
+    
+    let ratio = oppTeamOvr / Math.max(1, myTeamOvr);
+    ratio = Math.max(0.6, Math.min(1.5, ratio)); // Clamp entre 0.6 e 1.5
+
+    // Ponderar estatísticas pela dificuldade
+    weightedGoals += goalsInMatch * ratio;
+    weightedAssists += assistsInMatch * ratio;
+    weightedConceded += oppScore * (1 / ratio);
   });
 
   const matches = Math.max(1, playerMatches.length);
   const confidenceDivisor = Math.max(matches, 5);
 
-  // === CÁLCULOS DAS MÉTRICAS ===
-  
-  // FIN (Finalização): baseado em gols
-  // Esperado: ~1 gol a cada 5 matches = 99
-  const finRating = Math.min(99, Math.round((totalGoals / confidenceDivisor / 5.0) * 99));
+  // === CÁLCULOS DAS MÉTRICAS CONFORME MIGRATION_KIT ===
 
-  // VIS (Visão): baseado em assistências
-  // Esperado: ~1 assistência a cada 5 matches = 99
-  const visRating = Math.min(99, Math.round((totalAssists / confidenceDivisor / 5.0) * 99));
+  // FIN (Finalização)
+  const finRating = Math.min(99, Math.round(((weightedGoals / confidenceDivisor) / 5.0) * 99));
 
-  // DEC (Decisão): baseado em gols + assistências combinado
-  const decRaw = (totalGoals + totalAssists) / confidenceDivisor;
+  // VIS (Visão)
+  const visRating = Math.min(99, Math.round(((weightedAssists / confidenceDivisor) / 5.0) * 99));
+
+  // DEC (Decisão)
+  const decRaw = (weightedGoals + weightedAssists) / confidenceDivisor;
   const decRating = Math.min(99, Math.round((decRaw / 8.0) * 99));
 
-  // DEF (Defesa): baseado em gols sofridos (menos gols sofridos = melhor defesa)
-  const avgConceded = totalConceded / matches;
-  // Esperado: ~2 gols em 5 matches = 99 (jogador contribui para defesa)
-  const defBaseline = 2.0;
-  const defMultiplier = 4;
-  const defRating = Math.max(1, Math.min(99, Math.round(99 - ((avgConceded - defBaseline) * defMultiplier))));
+  // DEF (Defesa)
+  const avgConceded = weightedConceded / matches;
+  
+  const isGK = player.position === Position.GK;
+  const defBaseline = isGK ? 1.0 : 2.0; // GKs: <1.0 avg = perfeito, Field: <2.0
+  let defMultiplier = isGK ? 6 : 4; // GKs penalizados mais fortemente
 
-  // VIT (Vitalidade): taxa de vitórias
-  const vitRating = Math.max(0, Math.min(99, Math.round((totalWins / matches) * 100)));
+  // Ajuste contextual de defesa (apenas GK e Defensores)
+  if (isGK || player.position === Position.DEF) {
+    const getTeamDefensiveAvg = (): number => {
+      let defensiveTeammates: Player[] = [];
+      const myTeamIds = playerMatches[0] ? 
+        (playerMatches[0].teamA.includes(player.id) ? playerMatches[0].teamA : playerMatches[0].teamB) 
+        : [];
 
-  // EXP (Experiência): percentual de matches jogados (assume 20 matches totais como referência)
-  const totalMatchesReference = Math.max(allMatches.length, 20);
+      const teammates = myTeamIds
+        .filter(id => id !== player.id)
+        .map(id => allPlayers.find(p => p.id === id))
+        .filter(p => p !== undefined) as Player[];
+
+      if (isGK) {
+        defensiveTeammates = teammates.filter(p => p.position === Position.DEF);
+      } else if (player.position === Position.DEF) {
+        defensiveTeammates = teammates.filter(p => p.position === Position.GK || p.position === Position.DEF);
+      }
+
+      return defensiveTeammates.length > 0
+        ? defensiveTeammates.reduce((sum, p) => sum + (p.rating || 75), 0) / defensiveTeammates.length
+        : 75;
+    };
+
+    const teamDefAvg = getTeamDefensiveAvg();
+    const teamDefFactor = teamDefAvg / 75;
+    defMultiplier = defMultiplier * (2 - teamDefFactor);
+    defMultiplier = Math.max(2, Math.min(10, defMultiplier));
+  }
+
+  const baseDef = Math.max(0, Math.min(99, Math.round(99 - (avgConceded - defBaseline) * defMultiplier)));
+
+  // Scale factor por posição
+  let defScaleFactor = 1.0;
+  if (player.position === Position.MID) {
+    defScaleFactor = 0.4; // Meias: DEF × 0.4
+  } else if (player.position === Position.FWD) {
+    defScaleFactor = 0.2; // Atacantes: DEF × 0.2
+  }
+
+  const defRating = Math.round(baseDef * defScaleFactor);
+
+  // VIT (Vitória) - taxa de vitórias
+  const vitRating = matches > 0 ? Math.min(99, Math.round((subsetWins / matches) * 100)) : 0;
+
+  // EXP (Experiência) - % de partidas jogadas
+  const totalMatchesReference = Math.max(allMatches.filter(m => m.status === 'FINISHED').length, 20);
   const expRating = Math.min(99, Math.round((playerMatches.length / totalMatchesReference) * 99));
 
   // === CÁLCULO DO OVERALL FINAL ===
-  // Baseado na posição do jogador
   let avgPerformance = 0;
 
   switch (player.position) {
-    case 'ATACANTE':
-      avgPerformance = 
-        (finRating * 6.5 + decRating * 2.0 + visRating * 1.5 + vitRating * 1 + expRating * 0.5) / 11.5;
+    case Position.FWD: // ATACANTE
+      avgPerformance = ((finRating * 6.5) + (decRating * 2.0) + (visRating * 1.5) + (vitRating * 1) + (expRating * 0.5)) / 11.5;
       break;
-    case 'GOLEIRO':
-      avgPerformance = 
-        (defRating * 8 + expRating * 2 + vitRating * 1) / 11;
+    case Position.GK: // GOLEIRO
+      avgPerformance = ((defRating * 8) + (expRating * 2) + (vitRating * 1)) / 11;
       break;
-    case 'MEIO':
-      avgPerformance = 
-        (visRating * 3.5 + decRating * 2.5 + vitRating * 2.0 + finRating * 1.5 + expRating * 1.0 + defRating * 1.0) / 11.5;
+    case Position.MID: // MEIO
+      avgPerformance = ((visRating * 3.5) + (decRating * 2.5) + (vitRating * 2.0) + (finRating * 1.5) + (expRating * 1.0) + (defRating * 1.0)) / 11.5;
       break;
-    case 'ZAGUEIRO':
-      avgPerformance = 
-        (defRating * 6 + vitRating * 2 + decRating * 1.5 + visRating * 1 + finRating * 1 + expRating * 0.5) / 11.5;
+    case Position.DEF: // ZAGUEIRO
+      avgPerformance = ((defRating * 6) + (vitRating * 2) + (decRating * 1.5) + (visRating * 1) + (finRating * 1) + (expRating * 0.5)) / 11.5;
       break;
     default:
       avgPerformance = (finRating + decRating + visRating + defRating + vitRating + expRating) / 6;
@@ -119,14 +176,14 @@ export const calculatePlayerStats = (
   const calculated = Math.round(baseValue + (avgPerformance / 2) - 25);
   const overall = Math.max(1, Math.min(99, calculated));
 
-  // Mapear para futStats (para compatibilidade com FutCard)
+  // Mapear para futStats
   const futStats: FutStats = {
-    sho: finRating,    // FIN
-    pas: visRating,    // VIS
-    dri: decRating,    // DEC
-    pac: vitRating,    // VIT
-    phy: expRating,    // EXP
-    def: defRating     // DEF
+    sho: finRating,
+    pas: visRating,
+    dri: decRating,
+    pac: vitRating,
+    phy: expRating,
+    def: defRating
   };
 
   return {
