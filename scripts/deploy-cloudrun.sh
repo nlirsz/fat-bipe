@@ -21,10 +21,19 @@ fi
 REPO="${_REPO:-fat-bipe}"
 SERVICE="${_SERVICE:-varzea-pro-scout}"
 REGION="${_REGION:-us-west1}"
-IMAGE="gcr.io/${PROJECT_ID}/${REPO}:${TAG}"
+PROJECT="${PROJECT_ID:-${GOOGLE_CLOUD_PROJECT:-}}"
+if [ -z "${PROJECT}" ]; then
+  PROJECT="$(gcloud config get-value project 2>/dev/null || true)"
+fi
+if [ -z "${PROJECT}" ] || [ "${PROJECT}" = "(unset)" ]; then
+  echo "ERROR: project id not found. Set PROJECT_ID or GOOGLE_CLOUD_PROJECT in Cloud Build env."
+  exit 1
+fi
+
+IMAGE="gcr.io/${PROJECT}/${REPO}:${TAG}"
 
 echo "Deploying image: ${IMAGE}"
-echo "Service: ${SERVICE}, Region: ${REGION}, Project: ${PROJECT_ID}"
+echo "Service: ${SERVICE}, Region: ${REGION}, Project: ${PROJECT}"
 
 # Execute the deploy
 gcloud --quiet run deploy "${SERVICE}" \
