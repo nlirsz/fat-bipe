@@ -29,6 +29,6 @@ steps:
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: 'bash'
     # Call the repository script which sanitizes/ignores extra args appended by the runner
-    args: ['-lc', 'bash ./scripts/deploy-cloudrun.sh']
+    args: ['-lc', 'bash ./scripts/deploy-cloudrun.sh "$SHORT_SHA"']
 
 timeout: '1200s'

@@ -8,14 +8,20 @@ set -euo pipefail
 
 echo "deploy-cloudrun.sh starting..."
 
-if [ "$#" -gt 0 ]; then
-  echo "Ignoring unexpected args passed to script: $*"
+# Tag priority:
+# 1) First positional arg (passed explicitly from cloudbuild.yaml)
+# 2) SHORT_SHA env
+# 3) COMMIT_SHA short form
+# 4) "manual"
+TAG="${1:-${SHORT_SHA:-}}"
+if [ -z "${TAG}" ] && [ -n "${COMMIT_SHA:-}" ]; then
+  TAG="${COMMIT_SHA:0:7}"
 fi
-
-# Determine tag fallback (SHORT_SHA is supplied by Cloud Build when available)
-TAG="${SHORT_SHA:-}"
-if [ -z "$TAG" ]; then
+if [ -z "${TAG}" ]; then
   TAG="manual"
+fi
+if [ "$#" -gt 1 ]; then
+  echo "Ignoring unexpected extra args passed to script: ${*:2}"
 fi
 
 REPO="${_REPO:-fat-bipe}"
