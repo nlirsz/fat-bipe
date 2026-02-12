@@ -2,7 +2,7 @@
 import React, { useState, useMemo } from 'react';
 import { Match, Player, ThemeConfig, Position, MatchAwards } from '../types';
 import { ICONS, TEAM_A_NAME, TEAM_B_NAME } from '../constants';
-import { Trophy, Pencil, Trash2, X, Save, Loader2, UploadCloud, Plus, Target, Footprints, Calendar, FileText, ChevronRight, UserMinus, UserPlus, Users, Medal, Star, ShieldCheck, Search, ArrowRightLeft } from 'lucide-react';
+import { Trophy, Pencil, Trash2, X, Save, Loader2, UploadCloud, Plus, Target, Footprints, Calendar, FileText, ChevronRight, UserMinus, UserPlus, Users, Medal, Star, ShieldCheck, Search, ArrowRightLeft, Download } from 'lucide-react';
 import { deleteMatchFromDb, createMatchInDb, updateMatchInDb } from '../services/firebase';
 
 interface MatchHistoryProps {
@@ -23,6 +23,100 @@ export const MatchHistory: React.FC<MatchHistoryProps> = ({ matches, players, on
 
   const getPlayerName = (id: string) => players.find(p => p.id === id)?.name || 'Desconhecido';
   const getPlayerAvatar = (id: string) => players.find(p => p.id === id)?.avatarUrl;
+
+  const getAssistForGoal = (match: Match, goalEventId: string, teamId: 'A' | 'B', timestamp: number, period: 1 | 2, scorerId: string) => {
+    const linked = match.events.find(e => e.type === 'ASSIST' && e.relatedGoalId === goalEventId);
+    if (linked) return linked;
+    return match.events.find(e =>
+      e.type === 'ASSIST' &&
+      e.teamId === teamId &&
+      e.timestamp === timestamp &&
+      e.period === period &&
+      e.playerId !== scorerId
+    );
+  };
+
+  const exportMatchCsv = (match: Match) => {
+    const escapeCsv = (value: string | number) => {
+      const s = String(value ?? '');
+      if (s.includes(',') || s.includes('"') || s.includes('\n')) return `"${s.replace(/"/g, '""')}"`;
+      return s;
+    };
+
+    const rows: string[][] = [[
+      'data',
+      'match_id',
+      'time',
+      'jogador',
+      'gols',
+      'assistencias',
+      'g+a',
+      'assistido_por',
+      'assistencias_para'
+    ]];
+
+    const perPlayer = new Map<string, {
+      team: 'A' | 'B';
+      goals: number;
+      assists: number;
+      assistedBy: string[];
+      assistedTo: string[];
+    }>();
+
+    const ensure = (playerId: string, team: 'A' | 'B') => {
+      if (!perPlayer.has(playerId)) {
+        perPlayer.set(playerId, { team, goals: 0, assists: 0, assistedBy: [], assistedTo: [] });
+      }
+      return perPlayer.get(playerId)!;
+    };
+
+    (match.teamA || []).forEach(pid => ensure(pid, 'A'));
+    (match.teamB || []).forEach(pid => ensure(pid, 'B'));
+
+    match.events.forEach(e => {
+      const entry = ensure(e.playerId, e.teamId);
+      if (e.type === 'GOAL') entry.goals += 1;
+      if (e.type === 'ASSIST') entry.assists += 1;
+    });
+
+    match.events
+      .filter(e => e.type === 'GOAL')
+      .forEach(goal => {
+        const assist = getAssistForGoal(match, goal.id, goal.teamId, goal.timestamp, goal.period, goal.playerId);
+        if (!assist) return;
+        const scorer = ensure(goal.playerId, goal.teamId);
+        const assistant = ensure(assist.playerId, assist.teamId);
+        const assistantName = getPlayerName(assist.playerId);
+        const scorerName = getPlayerName(goal.playerId);
+        scorer.assistedBy.push(assistantName);
+        assistant.assistedTo.push(scorerName);
+      });
+
+    perPlayer.forEach((entry, playerId) => {
+      const teamName = entry.team === 'A' ? TEAM_A_NAME : TEAM_B_NAME;
+      const ga = entry.goals + entry.assists;
+      rows.push([
+        new Date(match.date).toLocaleDateString('pt-BR'),
+        match.id,
+        teamName,
+        getPlayerName(playerId),
+        String(entry.goals),
+        String(entry.assists),
+        String(ga),
+        entry.assistedBy.join(' | '),
+        entry.assistedTo.join(' | ')
+      ]);
+    });
+
+    const csv = rows.map(r => r.map(escapeCsv).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `partida_${new Date(match.date).toISOString().slice(0, 10)}_${match.id}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   const handleCreateManualMatch = () => {
       const newMatch: Omit<Match, 'id'> = {
@@ -107,11 +201,16 @@ export const MatchHistory: React.FC<MatchHistoryProps> = ({ matches, players, on
           if (eventToRemove.teamId === 'A') newScoreA = Math.max(0, newScoreA - 1);
           else newScoreB = Math.max(0, newScoreB - 1);
       }
+      const linkedAssistIds = eventToRemove?.type === 'GOAL'
+        ? editingMatch.events
+            .filter(e => e.type === 'ASSIST' && e.relatedGoalId === eventToRemove.id)
+            .map(e => e.id)
+        : [];
       setEditingMatch({
           ...editingMatch,
           scoreA: newScoreA,
           scoreB: newScoreB,
-          events: editingMatch.events.filter(e => e.id !== eventId)
+          events: editingMatch.events.filter(e => e.id !== eventId && !linkedAssistIds.includes(e.id))
       });
   };
 
@@ -188,7 +287,7 @@ export const MatchHistory: React.FC<MatchHistoryProps> = ({ matches, players, on
                 Histórico
             </h2>
             
-            <div>
+            <div className="flex items-center gap-2">
                 <button 
                     onClick={handleCreateManualMatch}
                     className={`flex items-center justify-center gap-1.5 px-4 h-10 rounded-xl text-[9px] font-black uppercase tracking-widest ${themeConfig?.primaryBg} ${isDark ? 'text-black' : 'text-white'} shadow-lg hover:brightness-110`}
@@ -219,6 +318,7 @@ export const MatchHistory: React.FC<MatchHistoryProps> = ({ matches, players, on
                     className={`${cardBg} rounded-[2rem] shadow-sm border ${borderColor} overflow-hidden flex flex-col h-full group relative transition-all hover:shadow-xl cursor-pointer active:scale-95`}
                 >
                     <div className="absolute top-3 right-3 flex gap-2 z-20" onClick={e => e.stopPropagation()}>
+                        <button onClick={(e) => { e.stopPropagation(); exportMatchCsv(match); }} className={`p-2 ${isDark ? 'bg-zinc-800 text-white' : 'bg-slate-100 text-slate-700'} rounded-full hover:brightness-110 transition-all shadow-sm`}><Download size={12}/></button>
                         <button onClick={(e) => { e.stopPropagation(); setEditingMatch(match); }} className={`p-2 ${isDark ? 'bg-zinc-800 text-yellow-400' : 'bg-blue-50 text-blue-600'} rounded-full hover:brightness-110 transition-all shadow-sm`}><Pencil size={12}/></button>
                         <button onClick={(e) => { e.stopPropagation(); handleDeleteMatch(match.id); }} className={`p-2 ${isDark ? 'bg-zinc-800 text-red-400' : 'bg-red-50 text-red-600'} rounded-full hover:brightness-110 transition-all shadow-sm`}>{isDeleting ? <Loader2 size={12} className="animate-spin"/> : <Trash2 size={12}/>}</button>
                     </div>
@@ -272,8 +372,8 @@ export const MatchHistory: React.FC<MatchHistoryProps> = ({ matches, players, on
 
       {/* VIEW DETAILS MODAL */}
       {viewingMatch && !editingMatch && (
-          <div className="fixed inset-0 z-[60] bg-black/90 backdrop-blur-md flex items-end md:items-center justify-center p-2 md:p-4 transition-all duration-300">
-              <div className={`${cardBg} w-full max-w-2xl rounded-t-[2.5rem] md:rounded-[3rem] overflow-hidden shadow-2xl border ${borderColor} animate-in slide-in-from-bottom-full md:zoom-in duration-300 flex flex-col h-[80vh] md:max-h-[85vh] mb-safe`}>
+          <div className="fixed inset-0 z-[130] bg-black/90 backdrop-blur-md flex items-end md:items-center justify-center p-1.5 md:p-4 transition-all duration-300">
+              <div className={`${cardBg} w-full max-w-2xl rounded-t-[1.25rem] md:rounded-[2rem] overflow-hidden shadow-2xl border ${borderColor} animate-in slide-in-from-bottom-full md:zoom-in duration-300 flex flex-col h-[calc(100dvh-0.75rem)] md:h-auto md:max-h-[85vh]`}>
                   <div className={`p-4 md:p-6 border-b ${borderColor} flex justify-between items-center ${isDark ? 'bg-zinc-800' : 'bg-black/[0.02]'}`}>
                       <div>
                           <h3 className={`text-lg md:text-xl font-black ${textColor} font-display tracking-tight`}>Súmula Detalhada</h3>
@@ -284,7 +384,7 @@ export const MatchHistory: React.FC<MatchHistoryProps> = ({ matches, players, on
                       <button onClick={() => setViewingMatch(null)} className={`p-2 md:p-3 ${isDark ? 'bg-zinc-700 text-yellow-400' : 'bg-slate-100 text-slate-500'} rounded-full hover:brightness-110`}><X size={20}/></button>
                   </div>
                   
-                  <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-5 md:space-y-6 custom-scrollbar pb-10">
+                  <div className="flex-1 overflow-y-auto p-3.5 md:p-6 space-y-4 md:space-y-6 custom-scrollbar pb-[calc(env(safe-area-inset-bottom)+1.5rem)]">
                       {/* Awards Summary */}
                       {viewingMatch.awards && (
                           <div className={`grid grid-cols-2 sm:grid-cols-3 gap-2 md:gap-3 ${isDark ? 'bg-zinc-950/50' : 'bg-yellow-50'} p-3 md:p-4 rounded-3xl border border-yellow-400/20`}>
@@ -390,8 +490,8 @@ export const MatchHistory: React.FC<MatchHistoryProps> = ({ matches, players, on
 
       {/* EDIT MATCH MODAL */}
       {editingMatch && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 backdrop-blur-xl p-4">
-            <div className={`${cardBg} w-full max-w-5xl rounded-[2.5rem] overflow-hidden shadow-2xl border-2 ${borderColor} flex flex-col h-[90vh] md:max-h-[90vh] animate-in zoom-in duration-300`}>
+        <div className="fixed inset-0 z-[140] flex items-center justify-center bg-black/95 backdrop-blur-xl p-1.5 md:p-4">
+            <div className={`${cardBg} w-full max-w-5xl rounded-[1.25rem] md:rounded-[2rem] overflow-hidden shadow-2xl border-2 ${borderColor} flex flex-col h-[calc(100dvh-0.75rem)] md:h-[90vh] md:max-h-[90vh] animate-in zoom-in duration-300`}>
                 <div className="p-6 border-b border-black/5 flex justify-between items-center shrink-0">
                     <div>
                         <h3 className={`text-xl font-black ${textColor} uppercase tracking-tighter`}>{editingMatch.id === 'temp-manual' ? 'Nova Partida Manual' : 'Editar Súmula'}</h3>
@@ -400,7 +500,7 @@ export const MatchHistory: React.FC<MatchHistoryProps> = ({ matches, players, on
                     <button onClick={() => setEditingMatch(null)} className="p-3 bg-black/5 rounded-full hover:bg-black/10 transition-colors"><X size={20}/></button>
                 </div>
 
-                <div className="flex-1 overflow-y-auto custom-scrollbar p-6 md:p-8 space-y-10 pb-32">
+                <div className="flex-1 overflow-y-auto custom-scrollbar p-3.5 md:p-8 space-y-6 md:space-y-10 pb-[calc(env(safe-area-inset-bottom)+6rem)]">
                     {/* PLACAR E DATA */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                         <div className={`p-6 rounded-3xl border ${borderColor} ${isDark ? 'bg-zinc-800/50' : 'bg-slate-50'}`}>
@@ -412,7 +512,15 @@ export const MatchHistory: React.FC<MatchHistoryProps> = ({ matches, players, on
                                         type="number" 
                                         min="0"
                                         value={editingMatch.scoreA} 
-                                        onChange={(e) => setEditingMatch({...editingMatch, scoreA: parseInt(e.target.value) || 0})}
+                                        onChange={(e) => {
+                                            const nextScoreA = parseInt(e.target.value) || 0;
+                                            const isTie = nextScoreA === editingMatch.scoreB;
+                                            setEditingMatch({
+                                                ...editingMatch,
+                                                scoreA: nextScoreA,
+                                                ...(isTie ? {} : { shootoutScoreA: undefined, shootoutScoreB: undefined })
+                                            });
+                                        }}
                                         className={`w-16 h-16 md:w-20 md:h-20 text-center text-4xl font-black rounded-2xl ${isDark ? 'bg-black border-zinc-700' : 'bg-white border-slate-200'} border-2 focus:border-pitch-500 outline-none`}
                                     />
                                 </div>
@@ -423,10 +531,69 @@ export const MatchHistory: React.FC<MatchHistoryProps> = ({ matches, players, on
                                         type="number" 
                                         min="0"
                                         value={editingMatch.scoreB} 
-                                        onChange={(e) => setEditingMatch({...editingMatch, scoreB: parseInt(e.target.value) || 0})}
+                                        onChange={(e) => {
+                                            const nextScoreB = parseInt(e.target.value) || 0;
+                                            const isTie = editingMatch.scoreA === nextScoreB;
+                                            setEditingMatch({
+                                                ...editingMatch,
+                                                scoreB: nextScoreB,
+                                                ...(isTie ? {} : { shootoutScoreA: undefined, shootoutScoreB: undefined })
+                                            });
+                                        }}
                                         className={`w-16 h-16 md:w-20 md:h-20 text-center text-4xl font-black rounded-2xl ${isDark ? 'bg-black border-zinc-700' : 'bg-white border-slate-200'} border-2 focus:border-red-500 outline-none text-red-500`}
                                     />
                                 </div>
+                            </div>
+                            <div className={`mt-5 pt-4 border-t ${borderColor}`}>
+                                {editingMatch.scoreA === editingMatch.scoreB ? (
+                                    <div className="space-y-3">
+                                        <div className="flex items-center justify-between gap-3">
+                                            <p className={`text-[9px] font-black uppercase tracking-widest ${mutedColor}`}>Desempate por Pênaltis</p>
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    const hasShootout = editingMatch.shootoutScoreA !== undefined && editingMatch.shootoutScoreB !== undefined;
+                                                    setEditingMatch({
+                                                        ...editingMatch,
+                                                        shootoutScoreA: hasShootout ? undefined : 0,
+                                                        shootoutScoreB: hasShootout ? undefined : 0
+                                                    });
+                                                }}
+                                                className={`px-3 h-8 rounded-lg text-[9px] font-black uppercase tracking-widest ${editingMatch.shootoutScoreA !== undefined && editingMatch.shootoutScoreB !== undefined ? (themeConfig?.primaryBg || 'bg-yellow-400') + ' text-black' : (isDark ? 'bg-zinc-700 text-white' : 'bg-slate-200 text-slate-700')}`}
+                                            >
+                                                {editingMatch.shootoutScoreA !== undefined && editingMatch.shootoutScoreB !== undefined ? 'Com Pênaltis' : 'Sem Pênaltis'}
+                                            </button>
+                                        </div>
+
+                                        {editingMatch.shootoutScoreA !== undefined && editingMatch.shootoutScoreB !== undefined && (
+                                            <div className="flex items-center justify-between gap-4">
+                                                <div className="text-center">
+                                                    <label className="block text-[9px] font-black uppercase mb-2">{TEAM_A_NAME}</label>
+                                                    <input
+                                                        type="number"
+                                                        min="0"
+                                                        value={editingMatch.shootoutScoreA}
+                                                        onChange={(e) => setEditingMatch({ ...editingMatch, shootoutScoreA: parseInt(e.target.value) || 0 })}
+                                                        className={`w-14 h-12 md:w-16 md:h-14 text-center text-2xl font-black rounded-xl ${isDark ? 'bg-black border-zinc-700' : 'bg-white border-slate-200'} border-2 focus:border-pitch-500 outline-none`}
+                                                    />
+                                                </div>
+                                                <span className="text-lg font-black opacity-20">x</span>
+                                                <div className="text-center">
+                                                    <label className="block text-[9px] font-black uppercase mb-2 text-red-500">{TEAM_B_NAME}</label>
+                                                    <input
+                                                        type="number"
+                                                        min="0"
+                                                        value={editingMatch.shootoutScoreB}
+                                                        onChange={(e) => setEditingMatch({ ...editingMatch, shootoutScoreB: parseInt(e.target.value) || 0 })}
+                                                        className={`w-14 h-12 md:w-16 md:h-14 text-center text-2xl font-black rounded-xl ${isDark ? 'bg-black border-zinc-700' : 'bg-white border-slate-200'} border-2 focus:border-red-500 outline-none text-red-500`}
+                                                    />
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Pênaltis habilitados somente quando o placar estiver empatado.</p>
+                                )}
                             </div>
                         </div>
 

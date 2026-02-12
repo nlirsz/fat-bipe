@@ -31,13 +31,6 @@ export interface Player {
   futStats?: FutStats;
   cardTheme?: 'GOLD' | 'SPECIAL' | 'TOTY' | 'ICON';
   externalId?: string;
-  // Individual rating fields (from update scripts)
-  finRating?: number;
-  visRating?: number;
-  decRating?: number;
-  defRating?: number;
-  vitRating?: number;
-  expRating?: number;
 }
 
 export interface MatchEvent {
@@ -47,6 +40,8 @@ export interface MatchEvent {
   teamId: 'A' | 'B';
   timestamp: number;
   period: 1 | 2;
+  relatedGoalId?: string; // For ASSIST events, links to the GOAL event id
+  assistedPlayerId?: string; // For ASSIST events, scorer who received the assist
 }
 
 export interface MatchTimer {
@@ -87,7 +82,7 @@ export interface AppSettings {
   logoUrl?: string;
 }
 
-export type ViewState = 'HOME' | 'TEAMS' | 'DASHBOARD' | 'LIVE' | 'STATS' | 'HISTORY' | 'SETTINGS' | 'SCHEDULED_MATCHES';
+export type ViewState = 'HOME' | 'TEAMS' | 'DASHBOARD' | 'LIVE' | 'STATS' | 'HISTORY' | 'SETTINGS' | 'SCHEDULED_MATCHES' | 'FINANCE';
 
 export type ThemeId = 'LIGHT' | 'DARK';
 

@@ -8,6 +8,7 @@ import { StatsBoard } from './components/StatsBoard';
 import { MatchHistory } from './components/MatchHistory';
 import { ScheduledMatches } from './components/ScheduledMatches';
 import { Dashboard } from './components/Dashboard';
+import { FinanceBoard } from './components/FinanceBoard';
 import { ChevronLeft, ChevronRight, RefreshCcw, AlertTriangle, Loader2, Calendar, DownloadCloud, Plus } from 'lucide-react';
 import { 
   subscribeToPlayers, 
@@ -30,16 +31,19 @@ interface SettingsViewProps {
   onThemeChange: (id: ThemeId) => void;
   onLogoUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onResetAll: () => void;
-  onSyncOverall: () => void;
+  onSyncOverall: (mode: 'api' | 'scrape') => void;
   onRecalculateStats: () => void;
   themeConfig: ThemeConfig;
   isResetting: boolean;
   isSyncing: boolean;
+  isRecalculating: boolean;
+  syncMode: 'api' | 'scrape' | null;
 }
 
-const SettingsView: React.FC<SettingsViewProps> = ({ currentThemeId, onThemeChange, onLogoUpload, onResetAll, onSyncOverall, onRecalculateStats, themeConfig, isResetting, isSyncing }) => {
+const SettingsView: React.FC<SettingsViewProps> = ({ currentThemeId, onThemeChange, onLogoUpload, onResetAll, onSyncOverall, onRecalculateStats, themeConfig, isResetting, isSyncing, isRecalculating, syncMode }) => {
   const isDark = themeConfig.id === 'DARK';
   const borderColor = isDark ? 'border-zinc-800' : 'border-slate-200';
+  const isBusy = isSyncing || isRecalculating;
 
   return (
     <div className="h-full overflow-y-auto p-4 pb-24 custom-scrollbar compact">
@@ -53,16 +57,26 @@ const SettingsView: React.FC<SettingsViewProps> = ({ currentThemeId, onThemeChan
                <div className="flex flex-col md:flex-row items-center gap-4">
                    <div className="flex-1">
                        <h3 className={`font-black text-sm ${themeConfig.textMain} uppercase tracking-tight`}>Conectar Base de Dados</h3>
-                       <p className={`text-xs ${themeConfig.textMuted} font-medium mt-1`}>Busca fotos e atributos reais dos jogadores.</p>
+                       <p className={`text-xs ${themeConfig.textMuted} font-medium mt-1`}>Atualiza OVR e atributos reais dos jogadores.</p>
                    </div>
-                   <button 
-                    onClick={onSyncOverall}
-                    disabled={isSyncing}
-                    className={`${themeConfig.primaryBg} ${isDark ? 'text-black' : 'text-white'} px-6 h-12 rounded-xl font-black uppercase tracking-widest text-[10px] flex items-center gap-2 hover:brightness-110 transition-all active:scale-95 disabled:opacity-50`}
-                   >
-                     {isSyncing ? <Loader2 size={14} className="animate-spin" /> : <RefreshCcw size={14} />}
-                     {isSyncing ? "..." : "Sync"}
-                   </button>
+                   <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+                    <button 
+                      onClick={() => onSyncOverall('api')}
+                      disabled={isBusy}
+                      className={`${themeConfig.primaryBg} ${isDark ? 'text-black' : 'text-white'} px-5 h-12 rounded-xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-2 hover:brightness-110 transition-all active:scale-95 disabled:opacity-50 min-w-[128px]`}
+                    >
+                      {isSyncing && syncMode === 'api' ? <Loader2 size={14} className="animate-spin" /> : <RefreshCcw size={14} />}
+                      {isSyncing && syncMode === 'api' ? "..." : "Sync API"}
+                    </button>
+                    <button 
+                      onClick={() => onSyncOverall('scrape')}
+                      disabled={isBusy}
+                      className={`${isDark ? 'bg-zinc-800 text-white' : 'bg-slate-900 text-white'} px-5 h-12 rounded-xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-2 hover:brightness-110 transition-all active:scale-95 disabled:opacity-50 min-w-[128px]`}
+                    >
+                      {isSyncing && syncMode === 'scrape' ? <Loader2 size={14} className="animate-spin" /> : <RefreshCcw size={14} />}
+                      {isSyncing && syncMode === 'scrape' ? "..." : "Sync Scrape"}
+                    </button>
+                   </div>
                </div>
            </div>
         </section>
@@ -79,11 +93,11 @@ const SettingsView: React.FC<SettingsViewProps> = ({ currentThemeId, onThemeChan
                    </div>
                    <button 
                     onClick={onRecalculateStats}
-                    disabled={isSyncing}
+                    disabled={isBusy}
                     className={`${themeConfig.primaryBg} ${isDark ? 'text-black' : 'text-white'} px-6 h-12 rounded-xl font-black uppercase tracking-widest text-[10px] flex items-center gap-2 hover:brightness-110 transition-all active:scale-95 disabled:opacity-50`}
                    >
-                     {isSyncing ? <Loader2 size={14} className="animate-spin" /> : <RefreshCcw size={14} />}
-                     {isSyncing ? "..." : "Recalcular"}
+                     {isRecalculating ? <Loader2 size={14} className="animate-spin" /> : <RefreshCcw size={14} />}
+                     {isRecalculating ? "..." : "Recalcular"}
                    </button>
                </div>
            </div>
@@ -155,6 +169,8 @@ const App: React.FC = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [isRecalculating, setIsRecalculating] = useState(false);
+  const [syncMode, setSyncMode] = useState<'api' | 'scrape' | null>(null);
   const [appLogo, setAppLogo] = useState<string | null>(null);
   const [players, setPlayers] = useState<Player[]>([]);
   const [matches, setMatches] = useState<Match[]>([]);
@@ -296,23 +312,172 @@ const App: React.FC = () => {
     return name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
   };
 
-  const handleSyncOverall = async () => {
+  const OVERALL_APP_BASE_URL = 'https://overall-dos-guri.vercel.app';
+
+  const toNumberOrNull = (value: any): number | null => {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
+  };
+
+  const buildMappedStats = (matched: any, fallback: any) => {
+    const rawStats = matched?.stats;
+    const stats = typeof rawStats === 'string'
+      ? (() => {
+          try { return JSON.parse(rawStats); } catch { return {}; }
+        })()
+      : (rawStats || {});
+
+    // Only trust explicit rating fields (fin/vis/dec/vit/exp/def).
+    // Generic FIFA fields like shooting/pace are often placeholders (60) and corrupt card values.
+    const fin = toNumberOrNull(stats?.finRating) ?? toNumberOrNull(matched?.finRating) ?? toNumberOrNull(fallback?.sho) ?? 0;
+    const vis = toNumberOrNull(stats?.visRating) ?? toNumberOrNull(matched?.visRating) ?? toNumberOrNull(fallback?.pas) ?? 0;
+    const dec = toNumberOrNull(stats?.decRating) ?? toNumberOrNull(matched?.decRating) ?? toNumberOrNull(fallback?.dri) ?? 0;
+    const vit = toNumberOrNull(stats?.vitRating) ?? toNumberOrNull(matched?.vitRating) ?? toNumberOrNull(fallback?.pac) ?? 0;
+    const exp = toNumberOrNull(stats?.expRating) ?? toNumberOrNull(matched?.expRating) ?? toNumberOrNull(fallback?.phy) ?? 0;
+    const def = toNumberOrNull(stats?.defRating) ?? toNumberOrNull(matched?.defRating) ?? toNumberOrNull(fallback?.def) ?? 0;
+
+    return { pac: vit, sho: fin, pas: vis, dri: dec, def: def, phy: exp };
+  };
+
+  const mapRawScrapeStatsExact = (matched: any) => {
+    const rawStats = matched?.stats;
+    const stats = typeof rawStats === 'string'
+      ? (() => {
+          try { return JSON.parse(rawStats); } catch { return {}; }
+        })()
+      : (rawStats || {});
+
+    const fin = toNumberOrNull(stats?.finRating) ?? toNumberOrNull(matched?.finRating) ?? 0;
+    const vis = toNumberOrNull(stats?.visRating) ?? toNumberOrNull(matched?.visRating) ?? 0;
+    const dec = toNumberOrNull(stats?.decRating) ?? toNumberOrNull(matched?.decRating) ?? 0;
+    const vit = toNumberOrNull(stats?.vitRating) ?? toNumberOrNull(matched?.vitRating) ?? 0;
+    const exp = toNumberOrNull(stats?.expRating) ?? toNumberOrNull(matched?.expRating) ?? 0;
+    const def = toNumberOrNull(stats?.defRating) ?? toNumberOrNull(matched?.defRating) ?? 0;
+
+    return { sho: fin, pas: vis, dri: dec, pac: vit, phy: exp, def: def };
+  };
+
+  const extractSupabaseConfigFromChunks = async (): Promise<{ supabaseUrl: string; publishableKey: string } | null> => {
+    const rootResponse = await fetch(OVERALL_APP_BASE_URL);
+    const rootHtml = await rootResponse.text();
+
+    const chunkPaths = Array.from(
+      new Set([...rootHtml.matchAll(/<script[^>]+src="([^"]+)"/g)].map(m => m[1] || ''))
+    ).filter(src => src.startsWith('/_next/static/chunks/'));
+
+    for (const chunkPath of chunkPaths) {
+      try {
+        const js = await fetch(`${OVERALL_APP_BASE_URL}${chunkPath}`).then(r => r.text());
+
+        const supabaseUrlMatch = js.match(/https:\/\/[a-zA-Z0-9.-]+\.supabase\.co/);
+        const publishableKeyMatch = js.match(/sb_publishable_[a-zA-Z0-9_-]+/);
+
+        if (supabaseUrlMatch?.[0] && publishableKeyMatch?.[0]) {
+          return {
+            supabaseUrl: supabaseUrlMatch[0],
+            publishableKey: publishableKeyMatch[0]
+          };
+        }
+      } catch {
+        // Ignore chunk read errors and continue searching.
+      }
+    }
+
+    return null;
+  };
+
+  const fetchPlayersByScrape = async (): Promise<{ players: any[] }> => {
+    const supabaseConfig = await extractSupabaseConfigFromChunks();
+    if (!supabaseConfig) {
+      throw new Error('Nao foi possivel descobrir configuracao do Supabase no app de Overall.');
+    }
+
+    const { supabaseUrl, publishableKey } = supabaseConfig;
+    const playersUrl = `${supabaseUrl}/rest/v1/players?select=*`;
+
+    const playersRes = await fetch(playersUrl, {
+      headers: {
+        apikey: publishableKey,
+        Authorization: `Bearer ${publishableKey}`
+      }
+    });
+    if (!playersRes.ok) {
+      throw new Error(`Erro ao buscar players do Supabase (${playersRes.status})`);
+    }
+
+    const playersData = await playersRes.json();
+    return {
+      players: Array.isArray(playersData) ? playersData : [],
+    };
+  };
+
+  const handleSyncOverall = async (mode: 'api' | 'scrape' = 'api') => {
+    setSyncMode(mode);
     setIsSyncing(true);
     try {
-      // Recalcular todas as estatísticas usando a lógica do migration_kit
-      console.log(`Sincronizando ${players.length} jogadores...`);
-      await updateAllPlayersCalculatedStats(players, matches, updatePlayerInDb);
-      alert("✅ Sincronização concluída! Todos os jogadores foram atualizados com a lógica de cálculo do migration_kit.");
-    } catch (error) {
-      console.error("Erro na sincronização:", error);
-      alert("❌ Houve um erro ao sincronizar. Tente novamente.");
+      const scrapeData = mode === 'scrape' ? await fetchPlayersByScrape() : null;
+      const data = mode === 'scrape'
+        ? scrapeData?.players || []
+        : await fetch(`${OVERALL_APP_BASE_URL}/api/players`).then(r => r.json());
+
+      if (Array.isArray(data)) {
+        const apiByName = new Map<string, any>();
+        for (const p of data) {
+          const normalized = normalizeName(p?.name || '');
+          if (!normalized) continue;
+          // Keep first occurrence only to avoid ambiguous overwrite.
+          if (!apiByName.has(normalized)) apiByName.set(normalized, p);
+        }
+
+        let matchedCount = 0;
+        let unmatchedCount = 0;
+        for (const localPlayer of players) {
+          const localNameNorm = normalizeName(localPlayer.name);
+          const matched = apiByName.get(localNameNorm);
+
+          if (matched) {
+            matchedCount++;
+            let apiPosition = localPlayer.position;
+            const apiPosStr = (matched.position || '').toUpperCase();
+            if (apiPosStr.includes('GOL') || apiPosStr === 'GL' || apiPosStr === 'GK') apiPosition = Position.GK;
+            else if (apiPosStr.includes('ZAG') || apiPosStr === 'DEF' || apiPosStr === 'CB' || apiPosStr === 'Z') apiPosition = Position.DEF;
+            else if (apiPosStr.includes('MEI') || apiPosStr === 'MID' || apiPosStr === 'CM' || apiPosStr.includes('ME')) apiPosition = Position.MID;
+            else if (apiPosStr.includes('ATA') || apiPosStr === 'FWD' || apiPosStr === 'ST' || apiPosStr === 'A') apiPosition = Position.FWD;
+
+            const currentOverall = toNumberOrNull(matched.overall) ?? toNumberOrNull(matched.rating);
+            const baseOverall = toNumberOrNull(matched.base_overall) ?? toNumberOrNull(matched.baseOverall);
+            const mappedStats = mode === 'scrape'
+              ? mapRawScrapeStatsExact(matched)
+              : buildMappedStats(matched, localPlayer.futStats || {});
+
+            await updatePlayerInDb(localPlayer.id, {
+              rating: currentOverall ?? baseOverall ?? localPlayer.rating,
+              position: apiPosition,
+              futStats: mappedStats
+            });
+          } else {
+            unmatchedCount++;
+          }
+        }
+        alert(`Sincronização (${mode === 'scrape' ? 'scrape' : 'api'}) concluída! ${matchedCount} atletas atualizados. ${unmatchedCount} sem match exato de nome.`);
+      } else {
+          alert("Resposta da API inválida.");
+      }
+    } catch (e) {
+      console.error("Erro na sincronização:", e);
+      if (mode === 'scrape') {
+        alert("Falha no modo scrape. Tente novamente com Sync API.");
+      } else {
+        alert("Houve um erro ao buscar dados da API.");
+      }
     } finally {
       setIsSyncing(false);
+      setSyncMode(null);
     }
   };
 
   const handleRecalculateStats = async () => {
-    setIsSyncing(true);
+    setIsRecalculating(true);
     try {
       await updateAllPlayersCalculatedStats(players, matches, updatePlayerInDb);
       alert("Estatísticas recalculadas com sucesso!");
@@ -320,7 +485,7 @@ const App: React.FC = () => {
       console.error("Erro ao recalcular estatísticas:", error);
       alert("Houve um erro ao recalcular as estatísticas.");
     } finally {
-      setIsSyncing(false);
+      setIsRecalculating(false);
     }
   };
 
@@ -362,6 +527,7 @@ const App: React.FC = () => {
     <nav className="flex-1 px-5 space-y-3">
       <SidebarItem v="TEAMS" icon={ICONS.Users} label="Times & Elenco" />
       <SidebarItem v="DASHBOARD" icon={ICONS.Trophy || ICONS.Stats} label="Dashboard" />
+      <SidebarItem v="FINANCE" icon={ICONS.Finance} label="Financeiro" />
       <SidebarItem v="SCHEDULED_MATCHES" icon={Calendar} label="Agenda" />
       <SidebarItem v="STATS" icon={ICONS.Stats} label="Hall da Fama" />
       <SidebarItem v="HISTORY" icon={ICONS.History} label="Histórico" />
@@ -394,10 +560,11 @@ const App: React.FC = () => {
 
         {/* View Container - Scrollable with Safe Area Paddings */}
         {/* Usamos pt-20 e pb-28 para garantir que o conteudo nao fique atras das barras fixas */}
-  <div className="absolute inset-0 overflow-y-auto custom-scrollbar z-10 pt-[calc(env(safe-area-inset-top)+3.5rem)] pb-[calc(env(safe-area-inset-bottom)+6.5rem)]">
+  <div className="absolute inset-0 overflow-y-auto custom-scrollbar pt-[calc(env(safe-area-inset-top)+4.5rem)] pb-[calc(env(safe-area-inset-bottom)+6.5rem)]">
             {view === 'TEAMS' && <TeamManagement players={players} matches={matches} onSelectMatch={(id) => setActiveScheduledMatchId(id)} onUpdatePlayer={updatePlayer} onAddPlayer={addPlayer} onDeletePlayer={deletePlayer} onStartMatchSetup={startMatchSetup} currentMatch={matchToManage || currentMatch} themeConfig={theme} />}
             {view === 'SCHEDULED_MATCHES' && <ScheduledMatches initialMatchId={activeScheduledMatchId} matches={matches} players={players} onStartMatch={startScheduledMatch} onEditMatch={handleEditScheduledMatch} onCreateNew={() => { setView('SCHEDULED_MATCHES'); }} onDeleteMatch={deleteMatchFromDb} themeConfig={theme} />}
             {view === 'DASHBOARD' && <Dashboard matches={matches} players={players} themeConfig={theme} />}
+            {view === 'FINANCE' && <FinanceBoard themeConfig={theme} />}
             {view === 'LIVE' && ( currentMatch ? <LiveGame match={currentMatch} players={players} onUpdateMatch={updateMatch} onFinishMatch={finishMatch} onCancelMatch={cancelMatch} themeConfig={theme} /> : 
               <div className="h-full flex flex-col items-center justify-center p-6 text-center animate-in fade-in zoom-in duration-500">
                 <div className={`${theme.cardBg} p-6 rounded-lg mb-6 border-4 ${borderColor} shadow-md opacity-60`}><ICONS.Calendar size={44} className={theme.textMuted} /></div>
@@ -408,7 +575,7 @@ const App: React.FC = () => {
             )}
             {view === 'STATS' && <StatsBoard players={players} matches={matches} themeConfig={theme} />}
             {view === 'HISTORY' && <MatchHistory matches={matches} players={players} onUpdateMatch={updateHistoryMatch} themeConfig={theme} />}
-            {view === 'SETTINGS' && <SettingsView currentThemeId={currentThemeId} onThemeChange={setCurrentThemeId} onLogoUpload={handleLogoUpload} onResetAll={handleResetAll} onSyncOverall={handleSyncOverall} onRecalculateStats={handleRecalculateStats} themeConfig={theme} isResetting={isResetting} isSyncing={isSyncing} />}
+            {view === 'SETTINGS' && <SettingsView currentThemeId={currentThemeId} onThemeChange={setCurrentThemeId} onLogoUpload={handleLogoUpload} onResetAll={handleResetAll} onSyncOverall={handleSyncOverall} onRecalculateStats={handleRecalculateStats} themeConfig={theme} isResetting={isResetting} isSyncing={isSyncing} isRecalculating={isRecalculating} syncMode={syncMode} />}
         </div>
 
         {/* MOBILE BOTTOM NAV - Fixed Absolute with High Z-Index */}
@@ -418,6 +585,7 @@ const App: React.FC = () => {
                 <div className="flex justify-around items-center h-16 px-2 relative">
                     <NavItem v="TEAMS" icon={ICONS.Users} label="Times" />
                     <NavItem v="DASHBOARD" icon={ICONS.Trophy || ICONS.Stats} label="Dashboard" />
+                    <NavItem v="FINANCE" icon={ICONS.Finance} label="Financeiro" />
                     <NavItem v="SCHEDULED_MATCHES" icon={Calendar} label="Agenda" />
           <div className="relative -top-5">
             <button onClick={() => setView('LIVE')} className={`relative w-14 h-14 rounded-full flex items-center justify-center shadow-md transition-all active:scale-95 border-2 ${isDark ? 'border-black' : 'border-white'} ${theme.primaryBg}`}><ICONS.Play size={22} className={activeTextClass} fill="currentColor" /></button>

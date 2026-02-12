@@ -9,12 +9,6 @@ substitutions:
 # 'build.logs_bucket' validation error.
 options:
   logging: CLOUD_LOGGING_ONLY
-  # When a custom service account is used by the trigger, Cloud Build
-  # may require an explicit logs-bucket behavior. Setting
-  # `default_logs_bucket_behavior: REGIONAL_USER_OWNED_BUCKET` is a
-  # compatible option that avoids the validation error when a
-  # `build.service_account` is present on the trigger.
-  default_logs_bucket_behavior: REGIONAL_USER_OWNED_BUCKET
 
 steps:
   # Install deps and build
@@ -34,8 +28,6 @@ steps:
   # Deploy to Cloud Run using the built image (use same TAG fallback)
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: 'bash'
-    env:
-      - 'PROJECT_ID=$PROJECT_ID'
     # Call the repository script which sanitizes/ignores extra args appended by the runner
     args: ['-lc', 'bash ./scripts/deploy-cloudrun.sh']
 

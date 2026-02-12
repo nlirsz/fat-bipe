@@ -1,5 +1,5 @@
 
-import { Users, Play, BarChart3, History, Shield, Trophy, User, Calendar, CheckCircle, XCircle, Plus, Minus, FileText, Settings, Palette } from 'lucide-react';
+import { Users, Play, BarChart3, History, Shield, Trophy, User, Calendar, CheckCircle, XCircle, Plus, Minus, FileText, Settings, Palette, Wallet } from 'lucide-react';
 import { ThemeConfig, ThemeId } from './types';
 
 export const ICONS = {
@@ -17,7 +17,8 @@ export const ICONS = {
   Minus,
   Summary: FileText,
   Settings,
-  Palette
+  Palette,
+  Finance: Wallet
 };
 
 // --- TEAM CONFIG ---

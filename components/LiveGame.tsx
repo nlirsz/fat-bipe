@@ -107,8 +107,9 @@ export const LiveGame: React.FC<LiveGameProps> = ({ match, players, onUpdateMatc
     
     const teamOfPlayer = isOwn ? (teamWhoScoredPoint === 'A' ? 'B' : 'A') : teamWhoScoredPoint;
 
+    const goalEventId = Date.now().toString();
     const newEvent: MatchEvent = { 
-        id: Date.now().toString(), 
+        id: goalEventId, 
         type: isOwn ? 'OWN_GOAL' : 'GOAL', 
         playerId: playerId, 
         teamId: teamOfPlayer, 
@@ -124,7 +125,9 @@ export const LiveGame: React.FC<LiveGameProps> = ({ match, players, onUpdateMatc
             playerId: assistId, 
             teamId: teamWhoScoredPoint, 
             timestamp: minute, 
-            period: match.currentPeriod 
+            period: match.currentPeriod,
+            relatedGoalId: goalEventId,
+            assistedPlayerId: playerId
         }); 
     }
     
@@ -143,7 +146,12 @@ export const LiveGame: React.FC<LiveGameProps> = ({ match, players, onUpdateMatc
       const eventToDelete = match.events.find(e => e.id === eventId);
       if (!eventToDelete) return;
       if (window.confirm("Apagar este lance? O placar será corrigido.")) {
-          const newEvents = match.events.filter(e => e.id !== eventId);
+          const linkedAssistIds = eventToDelete.type === 'GOAL'
+            ? match.events
+                .filter(e => e.type === 'ASSIST' && e.relatedGoalId === eventToDelete.id)
+                .map(e => e.id)
+            : [];
+          const newEvents = match.events.filter(e => e.id !== eventId && !linkedAssistIds.includes(e.id));
           let newScoreA = match.scoreA; let newScoreB = match.scoreB;
           
           if (eventToDelete.type === 'GOAL') { 
@@ -336,7 +344,7 @@ export const LiveGame: React.FC<LiveGameProps> = ({ match, players, onUpdateMatc
       {/* GOL MODAL */}
       {(modalOpen === 'GOAL_A' || modalOpen === 'GOAL_B') && (
         <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/95 backdrop-blur-xl p-4">
-            <div className={`bg-white w-full max-w-lg rounded-[2rem] overflow-hidden shadow-2xl flex flex-col max-h-[85vh] animate-in slide-in-from-bottom-10`}>
+            <div className={`${isDark ? 'bg-zinc-900 border border-white/10' : 'bg-white border border-slate-200'} w-full max-w-lg rounded-[2rem] overflow-hidden shadow-2xl flex flex-col max-h-[85vh] animate-in slide-in-from-bottom-10`}>
                 <div className={`p-4 border-b flex justify-between items-center ${modalOpen === 'GOAL_A' ? 'bg-black text-white' : 'bg-red-600 text-white'}`}>
                     <div>
                         <h2 className="text-lg font-black uppercase tracking-tighter">
@@ -345,7 +353,7 @@ export const LiveGame: React.FC<LiveGameProps> = ({ match, players, onUpdateMatc
                     </div>
                     <button onClick={() => { setModalOpen(null); setSelectedScorer(null); setIsOwnGoal(false); }} className="p-1.5 bg-white/10 rounded-full"><X size={18}/></button>
                 </div>
-                <div className="p-4 overflow-y-auto custom-scrollbar flex-1 bg-slate-50">
+                <div className={`p-4 overflow-y-auto custom-scrollbar flex-1 ${isDark ? 'bg-zinc-950 text-white' : 'bg-slate-50 text-slate-900'}`}>
                     {!selectedScorer ? (
                         <div className="flex flex-col gap-4">
                             <div className="grid grid-cols-3 gap-2">
@@ -353,8 +361,8 @@ export const LiveGame: React.FC<LiveGameProps> = ({ match, players, onUpdateMatc
                                     <button key={p.id} onClick={() => {
                                         if (isOwnGoal) handleGoal(modalOpen === 'GOAL_A' ? 'A' : 'B', p.id, undefined, true);
                                         else setSelectedScorer(p.id);
-                                    }} className="flex flex-col items-center gap-1.5 p-3 bg-white rounded-xl border-2 border-transparent hover:border-black active:scale-95 transition-all shadow-sm">
-                                        <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-xs font-black overflow-hidden">
+                                    }} className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 border-transparent active:scale-95 transition-all shadow-sm ${isDark ? 'bg-zinc-900 hover:border-zinc-500 text-white' : 'bg-white hover:border-black text-black'}`}>
+                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-black overflow-hidden ${isDark ? 'bg-zinc-800' : 'bg-slate-100'}`}>
                                             {p.avatarUrl ? <img src={p.avatarUrl} className="w-full h-full object-cover"/> : p.name.substring(0,1)}
                                         </div>
                                         <span className="text-[9px] font-black uppercase truncate w-full text-center">{p.name.split(' ')[0]}</span>
@@ -365,7 +373,7 @@ export const LiveGame: React.FC<LiveGameProps> = ({ match, players, onUpdateMatc
                             {!isOwnGoal && (
                                 <button 
                                     onClick={() => setIsOwnGoal(true)}
-                                    className="w-full py-3 border-2 border-dashed border-red-500/30 text-red-500 rounded-xl flex items-center justify-center gap-2 font-black text-[9px] uppercase tracking-widest bg-red-50 hover:bg-red-100 transition-all"
+                                    className={`w-full py-3 border-2 border-dashed border-red-500/40 text-red-500 rounded-xl flex items-center justify-center gap-2 font-black text-[9px] uppercase tracking-widest transition-all ${isDark ? 'bg-red-500/10 hover:bg-red-500/20' : 'bg-red-50 hover:bg-red-100'}`}
                                 >
                                     <AlertCircle size={14}/> Gol Contra
                                 </button>
@@ -376,15 +384,15 @@ export const LiveGame: React.FC<LiveGameProps> = ({ match, players, onUpdateMatc
                             <button onClick={() => handleGoal(modalOpen === 'GOAL_A' ? 'A' : 'B', selectedScorer, undefined)} className="w-full py-4 bg-black text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg active:scale-95">Sem Assistência</button>
                             <div className="grid grid-cols-3 gap-2">
                                 {(modalOpen === 'GOAL_A' ? teamAPlayers : teamBPlayers).filter(p => p.id !== selectedScorer).map(p => (
-                                    <button key={p.id} onClick={() => handleGoal(modalOpen === 'GOAL_A' ? 'A' : 'B', selectedScorer, p.id)} className="flex flex-col items-center gap-1.5 p-3 bg-white rounded-xl border border-slate-200 active:scale-95 transition-all">
-                                        <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-[8px] font-black overflow-hidden">
+                                    <button key={p.id} onClick={() => handleGoal(modalOpen === 'GOAL_A' ? 'A' : 'B', selectedScorer, p.id)} className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border active:scale-95 transition-all ${isDark ? 'bg-zinc-900 border-zinc-700 text-white' : 'bg-white border-slate-200 text-black'}`}>
+                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-[8px] font-black overflow-hidden ${isDark ? 'bg-zinc-800' : 'bg-slate-50'}`}>
                                             {p.avatarUrl ? <img src={p.avatarUrl} className="w-full h-full object-cover"/> : p.name.substring(0,1)}
                                         </div>
                                         <span className="text-[8px] font-black uppercase truncate w-full text-center">{p.name.split(' ')[0]}</span>
                                     </button>
                                 ))}
                             </div>
-                            <button onClick={() => { setSelectedScorer(null); setIsOwnGoal(false); }} className="w-full py-2 text-[9px] font-black text-slate-400 uppercase tracking-widest">Voltar</button>
+                            <button onClick={() => { setSelectedScorer(null); setIsOwnGoal(false); }} className={`w-full py-2 text-[9px] font-black uppercase tracking-widest ${isDark ? 'text-zinc-400' : 'text-slate-500'}`}>Voltar</button>
                         </div>
                     )}
                 </div>

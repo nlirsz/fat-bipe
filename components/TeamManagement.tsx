@@ -2,9 +2,10 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Player, Position, ThemeConfig, Match, FutStats } from '../types';
 import { TEAM_A_NAME, TEAM_B_NAME, ICONS } from '../constants';
-import { Trash2, Shuffle, Crown, Shirt, RefreshCw, UserMinus, Save, Play, Camera, X, Layout, Plus, RotateCcw, Target, Zap, Waves, Activity, ShieldCheck, Dumbbell, List, LayoutGrid, ChevronDown } from 'lucide-react';
+import { Shuffle, Crown, Shirt, RefreshCw, UserMinus, Save, Play, Camera, X, Plus, RotateCcw, Target, Zap, Waves, Activity, ShieldCheck, Dumbbell, List, LayoutGrid, ChevronDown } from 'lucide-react';
 import { resizeAndConvertToBase64 } from '../services/firebase';
 import { FutCard } from './FutCard';
+import { PlayerStatsModal } from './PlayerStatsModal';
 
 interface TeamManagementProps {
   players: Player[];
@@ -91,6 +92,7 @@ export const TeamManagement: React.FC<TeamManagementProps> = ({
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingPlayer, setEditingPlayer] = useState<Player | null>(null);
   const [selectedPlayerForAction, setSelectedPlayerForAction] = useState<Player | null>(null);
+  const [selectedPlayerForStats, setSelectedPlayerForStats] = useState<Player | null>(null);
   
   const [formName, setFormName] = useState('');
   const [formPosition, setFormPosition] = useState<Position>(Position.MID);
@@ -151,6 +153,16 @@ export const TeamManagement: React.FC<TeamManagementProps> = ({
     else onAddPlayer({ ...playerData, confirmed: true, goals: 0, assists: 0, matches: 0, wins: 0 });
     setShowAddModal(false);
     setEditingPlayer(null);
+  };
+
+  const startEditingPlayer = (player: Player) => {
+    setEditingPlayer(player);
+    setFormName(player.name);
+    setFormPosition(player.position);
+    setFormRating(player.rating);
+    setFormAvatarUrl(player.avatarUrl);
+    setFormStats(player.futStats || { pac: 50, sho: 50, pas: 50, dri: 50, def: 50, phy: 50 });
+    setShowAddModal(true);
   };
 
   const TacticalBoard = ({ teamIds, teamName, isTeamB }: { teamIds: string[], teamName: string, isTeamB?: boolean }) => {
@@ -262,19 +274,9 @@ export const TeamManagement: React.FC<TeamManagementProps> = ({
                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-3 gap-y-12 md:gap-x-8 md:gap-y-16 px-1 justify-items-center mt-8">
                         {players.map(player => (
                             <div key={player.id} className="relative group">
-                                <FutCard player={player} size="sm" />
-                                <div className="absolute top-0 right-0 p-1 md:p-2 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-50">
-                                    <button onClick={() => { 
-                                    setEditingPlayer(player); 
-                                    setFormName(player.name); 
-                                    setFormPosition(player.position); 
-                                    setFormRating(player.rating); 
-                                    setFormAvatarUrl(player.avatarUrl); 
-                                    setFormStats(player.futStats || { pac: 50, sho: 50, pas: 50, dri: 50, def: 50, phy: 50 });
-                                    setShowAddModal(true); 
-                                    }} className="w-8 h-8 md:w-10 md:h-10 bg-white shadow-lg rounded-full flex items-center justify-center text-slate-600 hover:text-black active:scale-90"><Layout size={16}/></button>
-                                    <button onClick={() => onDeletePlayer(player.id)} className="w-8 h-8 md:w-10 md:h-10 bg-white shadow-lg rounded-full flex items-center justify-center text-red-500 hover:text-red-700 active:scale-90"><Trash2 size={16}/></button>
-                                </div>
+                                <button onClick={() => setSelectedPlayerForStats(player)} className="block active:scale-95 transition-transform">
+                                  <FutCard player={player} size="sm" />
+                                </button>
                                 <div 
                                     className={`absolute -bottom-4 left-1/2 -translate-x-1/2 px-3 py-1.5 md:px-6 md:py-2 rounded-full font-black text-[8px] md:text-[9px] uppercase tracking-widest shadow-lg whitespace-nowrap z-50 pointer-events-none ${player.confirmed ? 'bg-pitch-500 text-white ring-2 ring-white/10' : 'bg-slate-200 text-slate-500'}`}
                                 >
@@ -286,7 +288,7 @@ export const TeamManagement: React.FC<TeamManagementProps> = ({
                  ) : (
                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
                         {players.map(player => (
-                            <div key={player.id} className={`flex items-center p-3 rounded-2xl border ${borderColor} ${isDark ? 'bg-zinc-900' : 'bg-white shadow-sm'} relative overflow-hidden`}>
+                            <div key={player.id} onClick={() => setSelectedPlayerForStats(player)} className={`flex items-center p-3 rounded-2xl border ${borderColor} ${isDark ? 'bg-zinc-900' : 'bg-white shadow-sm'} relative overflow-hidden cursor-pointer`}>
                                 <div className={`w-14 h-14 rounded-full border-2 ${isDark ? 'border-zinc-700' : 'border-slate-100'} overflow-hidden shrink-0`}>
                                     {player.avatarUrl ? <img src={player.avatarUrl} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center font-black text-slate-300">{player.name.charAt(0)}</div>}
                                 </div>
@@ -301,20 +303,6 @@ export const TeamManagement: React.FC<TeamManagementProps> = ({
                                      <div className={`px-3 py-1.5 rounded-lg font-black text-[8px] uppercase tracking-widest border pointer-events-none ${player.confirmed ? 'bg-pitch-500/10 text-pitch-500 border-pitch-500/20' : 'bg-slate-100 text-slate-400 border-slate-200'}`}>
                                         {player.confirmed ? 'IN' : 'OUT'}
                                      </div>
-                                     <button onClick={() => { 
-                                        setEditingPlayer(player); 
-                                        setFormName(player.name); 
-                                        setFormPosition(player.position); 
-                                        setFormRating(player.rating); 
-                                        setFormAvatarUrl(player.avatarUrl); 
-                                        setFormStats(player.futStats || { pac: 50, sho: 50, pas: 50, dri: 50, def: 50, phy: 50 });
-                                        setShowAddModal(true); 
-                                     }} className={`p-2 rounded-lg ${isDark ? 'bg-zinc-800 text-white' : 'bg-slate-100 text-slate-500'}`}>
-                                         <Layout size={14}/>
-                                     </button>
-                                     <button onClick={() => onDeletePlayer(player.id)} className={`p-2 rounded-lg ${isDark ? 'bg-zinc-800 text-red-400' : 'bg-red-50 text-red-500'}`}>
-                                         <Trash2 size={14}/>
-                                     </button>
                                 </div>
                             </div>
                         ))}
@@ -523,12 +511,12 @@ export const TeamManagement: React.FC<TeamManagementProps> = ({
 
                             <div className="grid grid-cols-2 gap-x-4 gap-y-4">
                                 {[
-                                    { key: 'pac' as keyof FutStats, label: 'Ritmo', icon: Zap, color: 'text-amber-500' },
-                                    { key: 'sho' as keyof FutStats, label: 'Chute', icon: Target, color: 'text-red-500' },
-                                    { key: 'pas' as keyof FutStats, label: 'Passe', icon: Waves, color: 'text-blue-500' },
-                                    { key: 'dri' as keyof FutStats, label: 'Drible', icon: Activity, color: 'text-purple-500' },
-                                    { key: 'def' as keyof FutStats, label: 'Defesa', icon: ShieldCheck, color: 'text-green-500' },
-                                    { key: 'phy' as keyof FutStats, label: 'Físico', icon: Dumbbell, color: 'text-zinc-500' },
+                                    { key: 'sho' as keyof FutStats, label: 'FIN', icon: Target, color: 'text-red-500' },
+                                    { key: 'pas' as keyof FutStats, label: 'VIS', icon: Waves, color: 'text-blue-500' },
+                                    { key: 'dri' as keyof FutStats, label: 'DEC', icon: Activity, color: 'text-purple-500' },
+                                    { key: 'pac' as keyof FutStats, label: 'VIT', icon: Zap, color: 'text-amber-500' },
+                                    { key: 'phy' as keyof FutStats, label: 'EXP', icon: Dumbbell, color: 'text-zinc-500' },
+                                    { key: 'def' as keyof FutStats, label: 'DEF', icon: ShieldCheck, color: 'text-green-500' },
                                 ].map(stat => (
                                     <div key={stat.key} className="space-y-1">
                                         <div className="flex justify-between items-center px-1">
@@ -606,6 +594,25 @@ export const TeamManagement: React.FC<TeamManagementProps> = ({
                   </div>
               </div>
           </div>
+      )}
+
+      {selectedPlayerForStats && (
+        <PlayerStatsModal
+          player={selectedPlayerForStats}
+          players={players}
+          matches={matches}
+          onClose={() => setSelectedPlayerForStats(null)}
+          onEditPlayer={(player) => {
+            setSelectedPlayerForStats(null);
+            startEditingPlayer(player);
+          }}
+          onDeletePlayer={(player) => {
+            if (!window.confirm(`Excluir o card de ${player.name}?`)) return;
+            setSelectedPlayerForStats(null);
+            onDeletePlayer(player.id);
+          }}
+          themeConfig={themeConfig}
+        />
       )}
     </div>
   );

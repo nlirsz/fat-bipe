@@ -67,6 +67,20 @@ svg {
   .text-base { font-size: 0.9rem !important }
   .text-sm { font-size: 0.8rem !important }
   .text-xs { font-size: 0.75rem !important }
+
+  /* Tone down oversized radii on mobile-first surfaces/modals */
+  .rounded-\[3rem\],
+  .rounded-\[2\.5rem\],
+  .rounded-\[2rem\],
+  .rounded-\[1\.75rem\] {
+    border-radius: 0.9rem !important;
+  }
+  .rounded-t-\[2\.5rem\],
+  .rounded-t-\[2rem\],
+  .rounded-t-\[1\.25rem\] {
+    border-top-left-radius: 0.9rem !important;
+    border-top-right-radius: 0.9rem !important;
+  }
 }
 
 /* Slightly smaller values for mid-size screens */
@@ -79,6 +93,11 @@ a, button { touch-action: manipulation; }
 
 /* Ensure scroll areas keep custom scrollbar style */
 .scroll-area { overflow: auto; -webkit-overflow-scrolling: touch; }
+.horizontal-scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+}
 
 /* Helpful utility to force compact layout when used on container */
 .compact * { line-height: 1.05 !important; }

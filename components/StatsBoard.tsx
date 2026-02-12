@@ -2,6 +2,7 @@
 import React, { useState, useMemo } from 'react';
 import { Player, Match, ThemeConfig, Position } from '../types';
 import { ArrowUpDown, ArrowDown, ArrowUp, Target, Footprints, History, Trophy, Star, Zap, Activity, Shield, Medal, TrendingUp, ChevronRight } from 'lucide-react';
+import { PlayerStatsModal } from './PlayerStatsModal';
 
 interface StatsBoardProps {
   players: Player[];
@@ -9,7 +10,7 @@ interface StatsBoardProps {
   themeConfig?: ThemeConfig;
 }
 
-type SortField = 'name' | 'matches' | 'goals' | 'assists' | 'wins' | 'participation' | 'win_percent' | 'ovr2' | 'totalAwards';
+type SortField = 'name' | 'matches' | 'goals' | 'assists' | 'wins' | 'participation' | 'goal_participation_per_match' | 'win_percent' | 'ovr2' | 'totalAwards';
 type SortDirection = 'asc' | 'desc';
 
 interface ComputedPlayer extends Player {
@@ -18,6 +19,7 @@ interface ComputedPlayer extends Player {
     totalMatches: number;
     totalWins: number;
     totalParticipation: number;
+    goalParticipationPerMatch: number;
     winPercent: number;
     ovr2: number;
     totalAwards: number;
@@ -31,8 +33,11 @@ export const StatsBoard: React.FC<StatsBoardProps> = ({ players, matches, themeC
   const [sortField, setSortField] = useState<SortField>('ovr2');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
   const [useOvr2, setUseOvr2] = useState(true);
+  const [selectedPlayerForStats, setSelectedPlayerForStats] = useState<Player | null>(null);
 
   const isDark = themeConfig?.id === 'DARK';
+  const stickyOvrWidth = 64;
+  const stickyNameWidth = 168;
 
   const computedPlayers = useMemo<ComputedPlayer[]>(() => {
       // 1. Coleta de dados brutos
@@ -42,7 +47,7 @@ export const StatsBoard: React.FC<StatsBoardProps> = ({ players, matches, themeC
       players.forEach(p => statsMap.set(p.id, { 
           ...p, 
           totalGoals: 0, totalAssists: 0, totalMatches: 0, totalWins: 0, 
-          totalParticipation: 0, winPercent: 0, ovr2: 60, totalAwards: 0, 
+          totalParticipation: 0, goalParticipationPerMatch: 0, winPercent: 0, ovr2: 60, totalAwards: 0, 
           isTopScorer: false, isTopAssister: false, winStreak: 0, avgGoalsConceded: 0
       }));
       
@@ -113,6 +118,7 @@ export const StatsBoard: React.FC<StatsBoardProps> = ({ players, matches, themeC
           // --- Cálculos Básicos ---
           const m = p.totalMatches;
           p.totalParticipation = p.totalGoals + p.totalAssists;
+          p.goalParticipationPerMatch = m > 0 ? p.totalParticipation / m : 0;
           p.winPercent = m > 0 ? Math.round((p.totalWins / m) * 100) : 0;
           p.isTopScorer = p.totalGoals === maxLeagueGoals && p.totalGoals > 0;
           p.isTopAssister = p.totalAssists === maxLeagueAssists && p.totalAssists > 0;
@@ -193,7 +199,9 @@ export const StatsBoard: React.FC<StatsBoardProps> = ({ players, matches, themeC
         case 'matches': valA = a.totalMatches; valB = b.totalMatches; break;
         case 'goals': valA = a.totalGoals; valB = b.totalGoals; break;
         case 'assists': valA = a.totalAssists; valB = b.totalAssists; break;
+        case 'wins': valA = a.totalWins; valB = b.totalWins; break;
         case 'participation': valA = a.totalParticipation; valB = b.totalParticipation; break;
+        case 'goal_participation_per_match': valA = a.goalParticipationPerMatch; valB = b.goalParticipationPerMatch; break;
         case 'totalAwards': valA = a.totalAwards; valB = b.totalAwards; break;
         case 'win_percent': valA = a.winPercent; valB = b.winPercent; break;
         case 'ovr2': valA = useOvr2 ? a.ovr2 : a.rating; valB = useOvr2 ? b.ovr2 : b.rating; break;
@@ -304,21 +312,69 @@ export const StatsBoard: React.FC<StatsBoardProps> = ({ players, matches, themeC
                 />
             </div>
 
-            <div className={`${themeConfig?.cardBg} rounded-[2rem] border ${isDark ? 'border-zinc-800' : 'border-slate-100'} shadow-2xl overflow-hidden`}>
+            <div className={`${themeConfig?.cardBg} rounded-xl md:rounded-[2rem] border ${isDark ? 'border-zinc-800' : 'border-slate-100'} shadow-2xl overflow-hidden`}>
                 <div className={`p-4 border-b ${isDark ? 'border-white/5 bg-white/5' : 'bg-slate-50'} flex justify-between items-center`}>
                     <div className="flex items-center gap-2">
                         <Activity size={16} className="text-pitch-500" />
                         <h3 className={`text-xs font-black ${themeConfig?.textMain} uppercase tracking-widest`}>Scout Geral</h3>
                     </div>
                 </div>
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse min-w-[360px]">
+                <div className="md:hidden">
+                    <div className={`grid grid-cols-[52px_1fr_34px_34px_44px_34px] px-2 py-2 text-[9px] font-black uppercase tracking-widest ${isDark ? 'bg-zinc-950 text-slate-400' : 'bg-slate-100 text-slate-500'}`}>
+                        <div className="text-center">OVR</div>
+                        <div>Atleta</div>
+                        <div className="text-center text-green-500">G</div>
+                        <div className="text-center text-blue-500">A</div>
+                        <div className="text-center text-purple-500">G+A</div>
+                        <div className="text-center text-slate-400">%</div>
+                    </div>
+                    <div className="divide-y divide-white/5">
+                        {tablePlayers.map(p => (
+                            <button
+                                key={p.id}
+                                onClick={() => setSelectedPlayerForStats(p)}
+                                className={`w-full grid grid-cols-[52px_1fr_34px_34px_44px_34px] items-center gap-1 px-2 py-2.5 text-left ${isDark ? 'hover:bg-white/5' : 'hover:bg-slate-50'}`}
+                            >
+                                <div className="flex justify-center">
+                                    <div className={`inline-flex items-center justify-center w-8 h-8 rounded-lg font-black text-xs ${useOvr2 ? 'bg-yellow-400 text-black' : (isDark ? 'bg-zinc-800 text-white' : 'bg-slate-100 text-black')}`}>
+                                        {useOvr2 ? p.ovr2 : p.rating}
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-2 min-w-0">
+                                    <div className={`w-7 h-7 rounded-full ${isDark ? 'bg-zinc-800' : 'bg-slate-100'} overflow-hidden shrink-0`}>
+                                        {p.avatarUrl ? <img src={p.avatarUrl} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-[8px] font-black text-slate-400">{p.name.substring(0,1)}</div>}
+                                    </div>
+                                    <span className={`font-black text-sm ${themeConfig?.textMain} truncate`}>{p.name.split(' ')[0]}</span>
+                                </div>
+                                <div className="text-center font-black text-green-600 text-xs">{p.totalGoals}</div>
+                                <div className="text-center font-black text-blue-600 text-xs">{p.totalAssists}</div>
+                                <div className="text-center">
+                                    <span className="px-1 py-0.5 rounded font-black text-purple-500 bg-purple-400/10 border border-purple-400/20 text-[10px]">{p.totalParticipation}</span>
+                                </div>
+                                <div className={`text-center font-bold text-[10px] ${isDark ? 'text-zinc-400' : 'text-slate-700'}`}>{p.winPercent}%</div>
+                            </button>
+                        ))}
+                    </div>
+                </div>
+                <div
+                  className="hidden md:block overflow-x-auto overscroll-x-contain custom-scrollbar horizontal-scroll"
+                  style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-x' }}
+                >
+                    <table className="w-full text-left border-separate border-spacing-0 min-w-[940px] md:min-w-[980px] whitespace-nowrap">
                         <thead>
                             <tr className={`${isDark ? 'bg-zinc-950' : 'bg-slate-100'} border-b ${isDark ? 'border-zinc-800' : 'border-slate-100'}`}>
-                                <th onClick={() => toggleSort('ovr2')} className={`p-2 text-[8px] md:text-[9px] font-black ${useOvr2 ? 'text-yellow-400' : 'text-slate-400'} uppercase tracking-widest text-center cursor-pointer hover:bg-black/5 transition-colors w-10`}>
+                                <th
+                                  onClick={() => toggleSort('ovr2')}
+                                  className={`sticky z-30 p-2 text-[8px] md:text-[9px] font-black ${useOvr2 ? 'text-yellow-400' : 'text-slate-400'} uppercase tracking-widest text-center cursor-pointer hover:bg-black/5 transition-colors ${isDark ? 'bg-zinc-950' : 'bg-slate-100'}`}
+                                  style={{ left: 0, width: stickyOvrWidth, minWidth: stickyOvrWidth, maxWidth: stickyOvrWidth }}
+                                >
                                     OVR <SortIcon field="ovr2"/>
                                 </th>
-                                <th onClick={() => toggleSort('name')} className="p-2 text-[8px] md:text-[9px] font-black text-slate-400 uppercase tracking-widest cursor-pointer hover:bg-black/5 transition-colors">
+                                <th
+                                  onClick={() => toggleSort('name')}
+                                  className={`sticky z-30 p-2 text-[8px] md:text-[9px] font-black text-slate-400 uppercase tracking-widest cursor-pointer hover:bg-black/5 transition-colors ${isDark ? 'bg-zinc-950' : 'bg-slate-100'}`}
+                                  style={{ left: stickyOvrWidth, width: stickyNameWidth, minWidth: stickyNameWidth, maxWidth: stickyNameWidth }}
+                                >
                                     Atleta <SortIcon field="name"/>
                                 </th>
                                 <th onClick={() => toggleSort('matches')} className="p-2 text-[8px] md:text-[9px] font-black text-slate-400 uppercase tracking-widest text-center cursor-pointer hover:bg-black/5 transition-colors w-10">
@@ -330,26 +386,38 @@ export const StatsBoard: React.FC<StatsBoardProps> = ({ players, matches, themeC
                                 <th onClick={() => toggleSort('assists')} className="p-2 text-[8px] md:text-[9px] font-black text-blue-500 uppercase tracking-widest text-center cursor-pointer hover:bg-black/5 transition-colors w-10">
                                     A <SortIcon field="assists"/>
                                 </th>
-                                <th onClick={() => toggleSort('participation')} className="p-2 text-[8px] md:text-[9px] font-black text-purple-500 uppercase tracking-widest text-center cursor-pointer hover:bg-black/5 transition-colors w-12 hidden md:table-cell">
+                                <th onClick={() => toggleSort('participation')} className="p-2 text-[8px] md:text-[9px] font-black text-purple-500 uppercase tracking-widest text-center cursor-pointer hover:bg-black/5 transition-colors w-12">
                                     G+A <SortIcon field="participation"/>
                                 </th>
-                                <th onClick={() => toggleSort('totalAwards')} className="p-2 text-[8px] md:text-[9px] font-black text-yellow-500 uppercase tracking-widest text-center cursor-pointer hover:bg-black/5 transition-colors w-10 hidden sm:table-cell">
+                                <th onClick={() => toggleSort('goal_participation_per_match')} className="p-2 text-[8px] md:text-[9px] font-black text-fuchsia-500 uppercase tracking-widest text-center cursor-pointer hover:bg-black/5 transition-colors w-12">
+                                    P/J <SortIcon field="goal_participation_per_match"/>
+                                </th>
+                                <th onClick={() => toggleSort('wins')} className="p-2 text-[8px] md:text-[9px] font-black text-emerald-500 uppercase tracking-widest text-center cursor-pointer hover:bg-black/5 transition-colors w-10">
+                                    V <SortIcon field="wins"/>
+                                </th>
+                                <th onClick={() => toggleSort('totalAwards')} className="p-2 text-[8px] md:text-[9px] font-black text-yellow-500 uppercase tracking-widest text-center cursor-pointer hover:bg-black/5 transition-colors w-10">
                                     <Medal size={12} className="mx-auto"/>
                                 </th>
-                                <th onClick={() => toggleSort('win_percent')} className="p-2 text-[8px] md:text-[9px] font-black text-slate-400 uppercase tracking-widest text-center cursor-pointer hover:bg-black/5 transition-colors w-10 hidden sm:table-cell">
+                                <th onClick={() => toggleSort('win_percent')} className="p-2 text-[8px] md:text-[9px] font-black text-slate-400 uppercase tracking-widest text-center cursor-pointer hover:bg-black/5 transition-colors w-10">
                                     % <SortIcon field="win_percent"/>
                                 </th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-white/5">
                             {tablePlayers.map(p => (
-                                <tr key={p.id} className="hover:bg-white/5 transition-colors group">
-                                    <td className="p-2 text-center">
+                                <tr key={p.id} onClick={() => setSelectedPlayerForStats(p)} className="hover:bg-white/5 transition-colors group cursor-pointer">
+                                    <td
+                                      className={`sticky z-20 p-2 text-center ${isDark ? 'bg-zinc-900 group-hover:bg-zinc-800' : 'bg-white group-hover:bg-slate-50'}`}
+                                      style={{ left: 0, width: stickyOvrWidth, minWidth: stickyOvrWidth, maxWidth: stickyOvrWidth }}
+                                    >
                                         <div className={`inline-flex items-center justify-center w-7 h-7 rounded-lg font-black text-[10px] shadow-inner transition-all duration-300 ${useOvr2 ? 'bg-yellow-400 text-black scale-105 shadow-md shadow-yellow-400/20' : (isDark ? 'bg-zinc-800 text-white' : 'bg-slate-100 text-black')}`}>
                                             {useOvr2 ? p.ovr2 : p.rating}
                                         </div>
                                     </td>
-                                    <td className="p-2">
+                                    <td
+                                      className={`sticky z-20 p-2 ${isDark ? 'bg-zinc-900 group-hover:bg-zinc-800' : 'bg-white group-hover:bg-slate-50'}`}
+                                      style={{ left: stickyOvrWidth, width: stickyNameWidth, minWidth: stickyNameWidth, maxWidth: stickyNameWidth }}
+                                    >
                                         <div className="flex items-center gap-2">
                                             <div className="relative">
                                                 <div className={`w-7 h-7 rounded-full ${isDark ? 'bg-zinc-800' : 'bg-slate-100'} overflow-hidden shrink-0`}>
@@ -362,7 +430,7 @@ export const StatsBoard: React.FC<StatsBoardProps> = ({ players, matches, themeC
                                                    {p.position === Position.GK && <Trophy size={5} className="text-yellow-500" />}
                                                 </div>
                                             </div>
-                                            <div className="w-auto max-w-[90px] md:max-w-[150px]">
+                                            <div className="w-auto max-w-[78px] md:max-w-[130px]">
                                                 <span className={`font-black text-[10px] md:text-xs ${themeConfig?.textMain} block leading-tight truncate`}>{p.name.split(' ')[0]}</span>
                                                 {p.winStreak >= 3 && <div className="flex items-center gap-1"><TrendingUp size={8} className="text-orange-500" /><span className="text-[6px] text-orange-500 font-bold hidden md:inline">ON FIRE</span></div>}
                                             </div>
@@ -371,13 +439,17 @@ export const StatsBoard: React.FC<StatsBoardProps> = ({ players, matches, themeC
                                     <td className={`p-2 text-center font-black text-[10px] ${isDark ? 'text-white' : 'text-black'}`}>{p.totalMatches}</td>
                                     <td className="p-2 text-center font-black text-green-600 text-[10px]">{p.totalGoals}</td>
                                     <td className="p-2 text-center font-black text-blue-600 text-[10px]">{p.totalAssists}</td>
-                                    <td className="p-2 text-center hidden md:table-cell">
+                                    <td className="p-2 text-center">
                                         <span className="px-1.5 py-0.5 rounded font-black text-purple-500 bg-purple-400/10 border border-purple-400/20 text-[9px]">{p.totalParticipation}</span>
                                     </td>
-                                    <td className="p-2 text-center hidden sm:table-cell">
+                                    <td className="p-2 text-center">
+                                        <span className="px-1.5 py-0.5 rounded font-black text-fuchsia-500 bg-fuchsia-400/10 border border-fuchsia-400/20 text-[9px]">{p.goalParticipationPerMatch.toFixed(2)}</span>
+                                    </td>
+                                    <td className={`p-2 text-center font-black text-[10px] ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>{p.totalWins}</td>
+                                    <td className="p-2 text-center">
                                         <span className={`text-[10px] font-black ${p.totalAwards > 0 ? 'text-yellow-500' : 'text-slate-400 opacity-20'}`}>{p.totalAwards}</span>
                                     </td>
-                                    <td className={`p-2 text-center font-bold text-[9px] hidden sm:table-cell ${isDark ? 'text-zinc-500' : 'text-slate-700'}`}>{p.winPercent}%</td>
+                                    <td className={`p-2 text-center font-bold text-[9px] ${isDark ? 'text-zinc-500' : 'text-slate-700'}`}>{p.winPercent}%</td>
                                 </tr>
                             ))}
                         </tbody>
@@ -386,6 +458,15 @@ export const StatsBoard: React.FC<StatsBoardProps> = ({ players, matches, themeC
             </div>
         </div>
       </div>
+      {selectedPlayerForStats && (
+        <PlayerStatsModal
+          player={selectedPlayerForStats}
+          players={players}
+          matches={matches}
+          onClose={() => setSelectedPlayerForStats(null)}
+          themeConfig={themeConfig}
+        />
+      )}
     </div>
   );
 };
